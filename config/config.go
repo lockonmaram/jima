@@ -12,7 +12,7 @@ const AppName = "JIMA"
 type Config struct {
 	// General
 	Environment string `envconfig:"ENVIRONMENT" default:"development"`
-	Port        int    `envconfig:"PORT" default:"3000"`
+	Port        int    `envconfig:"PORT" default:"8080"`
 
 	// Database
 	PostgresDBHost     string `envconfig:"POSTGRES_DB_HOST" default:"localhost"`
