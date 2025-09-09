@@ -9,3 +9,7 @@ type Group struct {
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
 	DeletedAt *time.Time `db:"deleted_at" json:"deleted_at"`
 }
+
+func (Group) TableName() string {
+	return "auth.groups"
+}

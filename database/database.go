@@ -23,5 +23,10 @@ func NewPostgresDB(cfg config.Config) *gorm.DB {
 	}
 	fmt.Println("Connected to Postgres database successfully")
 
+	if cfg.PostgresDBDebugMode {
+		db = db.Debug()
+		fmt.Println("Database debug mode is enabled")
+	}
+
 	return db
 }

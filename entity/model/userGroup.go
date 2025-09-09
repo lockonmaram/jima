@@ -10,3 +10,7 @@ type UserGroup struct {
 	UpdatedAt   *time.Time `db:"updated_at" json:"updated_at"`
 	DeletedAt   *time.Time `db:"deleted_at" json:"deleted_at"`
 }
+
+func (UserGroup) TableName() string {
+	return "auth.user_groups"
+}

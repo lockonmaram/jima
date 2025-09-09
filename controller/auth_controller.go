@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	api_entity "jima/entity/api"
 	"jima/helper"
 	"jima/service"
@@ -42,8 +43,25 @@ func (ac *authController) Register(c *gin.Context) {
 		return
 	}
 
+	response, err := ac.authService.Register(request)
+	if err != nil {
+		if errors.Is(err, helper.ErrUserAlreadyExists) {
+			helper.HandleResponse(c, helper.Response{
+				Status: http.StatusConflict,
+				Error:  err.Error(),
+			})
+			return
+		}
+
+		helper.HandleResponse(c, helper.Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
 	helper.HandleResponse(c, helper.Response{
 		Status: http.StatusOK,
-		Data:   "",
+		Data:   response,
 	})
 }
