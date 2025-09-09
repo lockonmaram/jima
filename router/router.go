@@ -3,6 +3,7 @@ package router
 import (
 	"jima/config"
 	"jima/controller"
+	"jima/entity/model"
 	"jima/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func InitRouter(
 
 	authV1 := v1.Group("/auth")
 	authV1.POST("/", authController.Authenticate)
-	authV1.POST("/register", middleware.Authorization(config), authController.Register)
+	authV1.POST("/register", middleware.Authorization(config), middleware.ValidateUserRole(model.RoleAdmin), authController.Register)
 
 	return router
 }
