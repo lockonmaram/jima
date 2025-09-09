@@ -21,7 +21,7 @@ func main() {
 	userGroupRepository := repository.NewUserGroupRepository(pgDB)
 
 	// Services
-	authService := service.NewUserService(userRepository, groupRepository, userGroupRepository)
+	authService := service.NewUserService(config, userRepository, groupRepository, userGroupRepository)
 
 	// Controller
 	authController := controller.NewAuthController(authService)

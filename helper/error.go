@@ -8,8 +8,9 @@ var (
 	ErrDatabase       = errors.New("database error")
 	ErrInvalidRequest = errors.New("invalid request")
 
-	ErrInvalidUsername = errors.New("invalid username")
-	ErrInvalidPassword = errors.New("invalid password")
+	ErrInvalidUsernameEmail = errors.New("invalid username / email")
+	ErrInvalidPassword      = errors.New("invalid password")
 
 	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserNotFound      = errors.New("user not found")
 )

@@ -31,9 +31,32 @@ func (ac *authController) Authenticate(c *gin.Context) {
 		return
 	}
 
+	response, err := ac.authService.Authenticate(request.UserParam, request.Password)
+	if err != nil {
+		if errors.Is(err, helper.ErrUserNotFound) {
+			helper.HandleResponse(c, helper.Response{
+				Status:  http.StatusUnauthorized,
+				Message: helper.ErrInvalidUsernameEmail.Error(),
+			})
+			return
+		} else if errors.Is(err, helper.ErrInvalidPassword) {
+			helper.HandleResponse(c, helper.Response{
+				Status:  http.StatusUnauthorized,
+				Message: helper.ErrInvalidPassword.Error(),
+			})
+			return
+		}
+
+		helper.HandleResponse(c, helper.Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
 	helper.HandleResponse(c, helper.Response{
 		Status: http.StatusOK,
-		Data:   request,
+		Data:   response,
 	})
 }
 

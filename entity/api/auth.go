@@ -1,12 +1,15 @@
 package api_entity
 
 type AuthAuthenticateRequest struct {
-	Username string `json:"username" validation:"required"`
-	Password string `json:"password" validation:"required"`
+	UserParam string `json:"userParam" validation:"required"` // username or email
+	Password  string `json:"password" validation:"required"`
 }
 type AuthAuthenticateResponse struct {
-	Username string `json:"username" validation:"required"`
-	Password string `json:"password" validation:"required"`
+	Token    string `json:"token"`
+	Serial   string `json:"serial"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 }
 
 type AuthRegisterRequest struct {

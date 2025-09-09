@@ -14,6 +14,10 @@ type Config struct {
 	Environment string `envconfig:"ENVIRONMENT" default:"development"`
 	Port        int    `envconfig:"PORT" default:"8080"`
 
+	// JWT
+	JWTSecret     string `envconfig:"JWT_SECRET"`
+	JWTExpireDays int    `envconfig:"JWT_EXPIRE_DAYS" default:"7"`
+
 	// Database
 	PostgresDBHost      string `envconfig:"POSTGRES_DB_HOST" default:"localhost"`
 	PostgresDBPort      int    `envconfig:"POSTGRES_DB_PORT" default:"5432"`
