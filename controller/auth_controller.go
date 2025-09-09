@@ -21,7 +21,7 @@ type authController struct {
 
 func NewAuthController(authService service.AuthService) AuthController {
 	return &authController{
-		authService: authService,
+		authService,
 	}
 }
 

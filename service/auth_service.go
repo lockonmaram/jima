@@ -17,23 +17,17 @@ type AuthService interface {
 }
 
 type authService struct {
-	config              config.Config
-	userRepository      repository.UserRepository
-	groupRepository     repository.GroupRepository
-	userGroupRepository repository.UserGroupRepository
+	config         config.Config
+	userRepository repository.UserRepository
 }
 
-func NewUserService(
+func NewAuthService(
 	config config.Config,
 	userRepo repository.UserRepository,
-	groupRepo repository.GroupRepository,
-	userGroupRepo repository.UserGroupRepository,
 ) AuthService {
 	return &authService{
-		config:              config,
-		userRepository:      userRepo,
-		groupRepository:     groupRepo,
-		userGroupRepository: userGroupRepo,
+		config:         config,
+		userRepository: userRepo,
 	}
 }
 
