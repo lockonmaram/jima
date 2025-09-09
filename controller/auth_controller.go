@@ -1,7 +1,10 @@
 package controller
 
 import (
+	api_entity "jima/entity/api"
+	"jima/helper"
 	"jima/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,5 +24,16 @@ func NewAuthController(authService service.AuthService) AuthController {
 	}
 }
 
-func (ac *authController) Authenticate(c *gin.Context) {}
-func (ac *authController) Register(c *gin.Context)     {}
+func (ac *authController) Authenticate(c *gin.Context) {
+	request := api_entity.AuthAuthenticateRequest{}
+	if err := helper.HandleRequest(c, &request); err != nil {
+		return
+	}
+
+	helper.HandleResponse(c, helper.Response{
+		Status: http.StatusOK,
+		Data:   request,
+	})
+}
+
+func (ac *authController) Register(c *gin.Context) {}
