@@ -7,11 +7,17 @@ import (
 
 const (
 	CharacterRunes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	SerialLength   = 12
 )
 
 func GenerateSerialFromString(input string) string {
-	serialPrefix := input[0:6]
-	randomChars := randStringRunes(6)
+	serialPrefix := ""
+	if len(input) >= 6 {
+		serialPrefix = input[0:6]
+	} else {
+		serialPrefix = input
+	}
+	randomChars := randStringRunes(SerialLength - len(serialPrefix))
 
 	return strings.ToUpper(serialPrefix + randomChars)
 }

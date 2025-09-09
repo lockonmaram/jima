@@ -10,6 +10,10 @@ const (
 	StatusMessageSuccess        = "success"
 	StatusMessageError          = "error"
 	StatusMessageInvalidRequest = "invalid request"
+
+	HeaderAuthorization = "Authorization"
+
+	ContextUserAuth = "userAuth"
 )
 
 type Response struct {
@@ -63,4 +67,13 @@ func HandleRequest(c *gin.Context, request any) (err error) {
 	}
 
 	return nil
+}
+
+func GetUserAuthClaims(c *gin.Context) *Claims {
+	userAuth, exists := c.MustGet(ContextUserAuth).(*Claims)
+	if !exists {
+		return nil
+	}
+
+	return userAuth
 }

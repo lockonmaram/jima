@@ -9,15 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	HeaderAuthorization = "Authorization"
-
-	ContextUserAuth = "userAuth"
-)
-
 func Authorization(config config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader(HeaderAuthorization)
+		token := c.GetHeader(helper.HeaderAuthorization)
 
 		if token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -37,15 +31,15 @@ func Authorization(config config.Config) gin.HandlerFunc {
 			return
 		}
 
-		c.Set(ContextUserAuth, claims)
+		c.Set(helper.ContextUserAuth, claims)
 		c.Next()
 	}
 }
 
 func ValidateUserRole(allowedRoles ...model.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userAuth, exists := c.Get(ContextUserAuth)
-		if !exists {
+		userAuth := helper.GetUserAuthClaims(c)
+		if userAuth == nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
 				"message": helper.ErrUnauthorizedToken.Error(),
@@ -53,10 +47,8 @@ func ValidateUserRole(allowedRoles ...model.Role) gin.HandlerFunc {
 			return
 		}
 
-		claims := userAuth.(*helper.Claims)
-
 		for _, v := range allowedRoles {
-			if claims.Role == string(v) {
+			if userAuth.Role == string(v) {
 				c.Next()
 				return
 			}

@@ -12,6 +12,7 @@ import (
 func InitRouter(
 	config config.Config,
 	authController controller.AuthController,
+	groupController controller.GroupController,
 ) *gin.Engine {
 	router := gin.Default()
 
@@ -22,6 +23,10 @@ func InitRouter(
 	authV1 := v1.Group("/auth")
 	authV1.POST("/", authController.Authenticate)
 	authV1.POST("/register", middleware.Authorization(config), middleware.ValidateUserRole(model.RoleAdmin), authController.Register)
+
+	groupV1 := v1.Group("/group")
+	groupV1.Use(middleware.Authorization(config))
+	groupV1.POST("/", groupController.CreateGroup)
 
 	return router
 }

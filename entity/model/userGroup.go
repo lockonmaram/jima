@@ -2,6 +2,10 @@ package model
 
 import "time"
 
+const (
+	UserGroupSerialPrefix = "USRGRP"
+)
+
 type UserGroup struct {
 	Serial      string     `db:"serial" json:"serial"`
 	UserSerial  string     `db:"user_serial" json:"user_serial"`

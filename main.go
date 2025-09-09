@@ -21,15 +21,18 @@ func main() {
 	userGroupRepository := repository.NewUserGroupRepository(pgDB)
 
 	// Services
-	authService := service.NewUserService(config, userRepository, groupRepository, userGroupRepository)
+	authService := service.NewAuthService(config, userRepository)
+	groupService := service.NewGroupService(config, userRepository, groupRepository, userGroupRepository)
 
 	// Controller
 	authController := controller.NewAuthController(authService)
+	groupController := controller.NewGroupController(groupService)
 
 	// Init Router
 	r := router.InitRouter(
 		config,
 		authController,
+		groupController,
 	)
 	r.Run(fmt.Sprintf(":%d", config.Port))
 }
