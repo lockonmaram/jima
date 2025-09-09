@@ -33,3 +33,27 @@ func GenerateJWT(config config.Config, user *model.User) (signedToken string, er
 
 	return signedToken, err
 }
+
+func ValidateJWT(config config.Config, signedToken string) (claims *Claims, err error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&Claims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(config.JWTSecret), nil
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok {
+		return nil, err
+	}
+
+	if claims.ExpiresAt.Time.Before(time.Now()) {
+		return nil, jwt.ErrTokenExpired
+	}
+
+	return claims, nil
+}

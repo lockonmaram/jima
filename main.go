@@ -28,6 +28,7 @@ func main() {
 
 	// Init Router
 	r := router.InitRouter(
+		config,
 		authController,
 	)
 	r.Run(fmt.Sprintf(":%d", config.Port))

@@ -5,6 +5,8 @@ import (
 )
 
 var (
+	ErrUnauthorizedToken = errors.New("unauthorized token")
+
 	ErrDatabase       = errors.New("database error")
 	ErrInvalidRequest = errors.New("invalid request")
 

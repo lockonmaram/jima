@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+type Role string
+
+const (
+	RoleAdmin Role = "admin"
+	RoleUser  Role = "user"
+)
+
 type User struct {
 	Serial    string     `db:"serial" json:"serial"`
 	Username  string     `db:"username" json:"username"`
