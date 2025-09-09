@@ -36,4 +36,14 @@ func (ac *authController) Authenticate(c *gin.Context) {
 	})
 }
 
-func (ac *authController) Register(c *gin.Context) {}
+func (ac *authController) Register(c *gin.Context) {
+	request := api_entity.AuthRegisterRequest{}
+	if err := helper.HandleRequest(c, &request); err != nil {
+		return
+	}
+
+	helper.HandleResponse(c, helper.Response{
+		Status: http.StatusOK,
+		Data:   "",
+	})
+}

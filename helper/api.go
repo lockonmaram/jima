@@ -44,14 +44,23 @@ func HandleResponse(c *gin.Context, resp Response) {
 	c.JSON(resp.Status, response)
 }
 
-func HandleRequest(c *gin.Context, obj any) (err error) {
-	if err := c.ShouldBindJSON(obj); err != nil {
+func HandleRequest(c *gin.Context, request any) (err error) {
+	if err := c.BindJSON(request); err != nil {
 		HandleResponse(c, Response{
-			Status:  http.StatusBadRequest,
-			Message: ErrInvalidRequest.Error(),
-			Error:   err.Error(),
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
 		})
 		return err
 	}
+
+	if err := ValidateStruct(request); err != nil {
+		HandleResponse(c, Response{
+			Status:  http.StatusBadRequest,
+			Message: err.Error(),
+			Error:   ErrInvalidRequest.Error(),
+		})
+		return err
+	}
+
 	return nil
 }
