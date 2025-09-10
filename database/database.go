@@ -15,7 +15,7 @@ func NewPostgresDB(cfg config.Config) *gorm.DB {
 		cfg.PostgresDBPassword,
 		cfg.PostgresDBName,
 		fmt.Sprint(cfg.PostgresDBPort),
-		"UTC",
+		cfg.PostgresDBTimezone,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
