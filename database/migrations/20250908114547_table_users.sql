@@ -8,11 +8,11 @@ CREATE TABLE auth.users (
   role varchar,
 
   created_at timestamp,
-  created_by varchar REFERENCES auth.users(serial),
+  created_by varchar,
   updated_at timestamp,
-  updated_by varchar REFERENCES auth.users(serial),
+  updated_by varchar,
   deleted_at timestamp,
-  deleted_by varchar REFERENCES auth.users(serial)
+  deleted_by varchar
 );
 
 CREATE UNIQUE INDEX idx_users_username_unique ON auth.users (username);

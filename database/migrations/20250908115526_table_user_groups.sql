@@ -6,11 +6,11 @@ CREATE TABLE auth.user_groups (
   user_group_role varchar,
 
   created_at timestamp,
-  created_by varchar REFERENCES auth.users(serial),
+  created_by varchar,
   updated_at timestamp,
-  updated_by varchar REFERENCES auth.users(serial),
+  updated_by varchar,
   deleted_at timestamp,
-  deleted_by varchar REFERENCES auth.users(serial)
+  deleted_by varchar
 );
 
 ALTER TABLE auth.user_groups ADD FOREIGN KEY (user_serial) REFERENCES auth.users (serial);
