@@ -6,10 +6,12 @@ import (
 	"jima/entity/model"
 	"jima/helper"
 	"jima/repository"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GroupService interface {
-	CreateGroup(request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error)
+	CreateGroup(c *gin.Context, request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error)
 }
 
 type groupService struct {
@@ -33,11 +35,12 @@ func NewGroupService(
 	}
 }
 
-func (s *groupService) CreateGroup(request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error) {
+func (s *groupService) CreateGroup(c *gin.Context, request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error) {
 	// Create group
 	group := &model.Group{
-		Serial: helper.GenerateSerialFromString(model.GroupSerialPrefix, request.Name),
-		Name:   request.Name,
+		Serial:    helper.GenerateSerialFromString(model.GroupSerialPrefix, request.Name),
+		Name:      request.Name,
+		CreatedBy: request.UserSerial,
 	}
 
 	group, err = s.groupRepository.CreateGroup(group, request.UserSerial)

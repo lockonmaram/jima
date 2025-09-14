@@ -36,6 +36,7 @@ func (r *groupRepository) CreateGroup(group *model.Group, userSerial string) (re
 			UserSerial:  userSerial,
 			GroupSerial: group.Serial,
 			Role:        model.UserGroupRoleManager,
+			CreatedBy:   userSerial,
 		}
 		if err := tx.Create(&userGroup).Error; err != nil {
 			return err

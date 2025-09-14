@@ -32,7 +32,7 @@ func (gc *groupController) CreateGroup(c *gin.Context) {
 	userAuth := helper.GetUserAuthClaims(c)
 	request.UserSerial = userAuth.Serial
 
-	response, err := gc.groupService.CreateGroup(request)
+	response, err := gc.groupService.CreateGroup(c, request)
 	if err != nil {
 		helper.HandleResponse(c, helper.Response{
 			Status: http.StatusInternalServerError,
