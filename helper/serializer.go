@@ -10,16 +10,22 @@ const (
 	SerialLength   = 12
 )
 
-func GenerateSerialFromString(input string) string {
-	serialPrefix := ""
+func GenerateSerialFromString(serialPrefix, input string) (serial string) {
+	stringPrefix := ""
 	if len(input) >= 6 {
-		serialPrefix = input[0:6]
+		stringPrefix = input[0:6]
 	} else {
-		serialPrefix = input
+		stringPrefix = input
 	}
-	randomChars := randStringRunes(SerialLength - len(serialPrefix))
 
-	return strings.ToUpper(serialPrefix + randomChars)
+	randomChars := randStringRunes(SerialLength - len(stringPrefix))
+	serial = strings.ToUpper(stringPrefix + randomChars)
+
+	if serialPrefix != "" {
+		serial = serialPrefix + "-" + serial
+	}
+
+	return serial
 }
 
 func randStringRunes(n int) string {

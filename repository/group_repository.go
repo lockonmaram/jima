@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"jima/entity/model"
 	"jima/helper"
 	"strings"
@@ -28,9 +27,12 @@ func (r *groupRepository) CreateGroup(group *model.Group, userSerial string) (re
 			return err
 		}
 
+		// Generate yser group serial
+		userGroupSerial := helper.GenerateSerialFromString(model.UserGroupSerialPrefix, strings.Split(group.Serial, "-")[1])
+
 		// Assign user to group
 		userGroup := model.UserGroup{
-			Serial:      fmt.Sprintf("%s-%s", model.UserGroupSerialPrefix, helper.GenerateSerialFromString(strings.Split(group.Serial, "-")[1])),
+			Serial:      userGroupSerial,
 			UserSerial:  userSerial,
 			GroupSerial: group.Serial,
 		}

@@ -8,12 +8,13 @@ import (
 	"jima/helper"
 	"jima/repository"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type AuthService interface {
-	Authenticate(username, password string) (response *api_entity.AuthAuthenticateResponse, err error)
-	Register(request api_entity.AuthRegisterRequest) (response *api_entity.AuthRegisterResponse, err error)
+	Authenticate(c *gin.Context, username, password string) (response *api_entity.AuthAuthenticateResponse, err error)
+	Register(c *gin.Context, request api_entity.AuthRegisterRequest) (response *api_entity.AuthRegisterResponse, err error)
 }
 
 type authService struct {
@@ -31,7 +32,7 @@ func NewAuthService(
 	}
 }
 
-func (s *authService) Authenticate(userParam, password string) (response *api_entity.AuthAuthenticateResponse, err error) {
+func (s *authService) Authenticate(c *gin.Context, userParam, password string) (response *api_entity.AuthAuthenticateResponse, err error) {
 	// Get user by username or email
 	user, err := s.userRepository.GetUserByUsernameOrEmail(userParam, userParam)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -61,7 +62,7 @@ func (s *authService) Authenticate(userParam, password string) (response *api_en
 	}, nil
 }
 
-func (s *authService) Register(request api_entity.AuthRegisterRequest) (response *api_entity.AuthRegisterResponse, err error) {
+func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRequest) (response *api_entity.AuthRegisterResponse, err error) {
 	// Check if user already exists
 	existingUser, err := s.userRepository.GetUserByUsernameOrEmail(request.Username, request.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -76,15 +77,16 @@ func (s *authService) Register(request api_entity.AuthRegisterRequest) (response
 	if err != nil {
 		return nil, err
 	}
-	serial := helper.GenerateSerialFromString(request.Username)
+	serial := helper.GenerateSerialFromString(model.UserSerialPrefix, request.Username)
 
 	user := model.User{
-		Serial:   serial,
-		Username: request.Username,
-		Email:    request.Email,
-		Name:     request.Name,
-		Password: hashedPassword,
-		Role:     request.Role,
+		Serial:    serial,
+		Username:  request.Username,
+		Email:     request.Email,
+		Name:      request.Name,
+		Password:  hashedPassword,
+		Role:      request.Role,
+		CreatedBy: helper.GetUserAuthClaims(c).Serial,
 	}
 
 	err = s.userRepository.CreateUser(user)

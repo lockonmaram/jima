@@ -31,7 +31,7 @@ func (ac *authController) Authenticate(c *gin.Context) {
 		return
 	}
 
-	response, err := ac.authService.Authenticate(request.UserParam, request.Password)
+	response, err := ac.authService.Authenticate(c, request.UserParam, request.Password)
 	if err != nil {
 		if errors.Is(err, helper.ErrUserNotFound) {
 			helper.HandleResponse(c, helper.Response{
@@ -66,7 +66,7 @@ func (ac *authController) Register(c *gin.Context) {
 		return
 	}
 
-	response, err := ac.authService.Register(request)
+	response, err := ac.authService.Register(c, request)
 	if err != nil {
 		if errors.Is(err, helper.ErrUserAlreadyExists) {
 			helper.HandleResponse(c, helper.Response{

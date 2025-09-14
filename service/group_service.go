@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"jima/config"
 	api_entity "jima/entity/api"
 	"jima/entity/model"
@@ -37,7 +36,7 @@ func NewGroupService(
 func (s *groupService) CreateGroup(request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error) {
 	// Create group
 	group := &model.Group{
-		Serial: fmt.Sprintf("%s-%s", model.GroupSerialPrefix, helper.GenerateSerialFromString(request.Name)),
+		Serial: helper.GenerateSerialFromString(model.GroupSerialPrefix, request.Name),
 		Name:   request.Name,
 	}
 

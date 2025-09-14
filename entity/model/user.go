@@ -7,10 +7,10 @@ import (
 type UserRole string
 
 const (
+	UserSerialPrefix = "USR"
+
 	UserRoleAdmin UserRole = "admin"
 	UserRoleUser  UserRole = "user"
-
-	UserSerialPrefix = "USR"
 )
 
 type User struct {
