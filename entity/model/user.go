@@ -4,11 +4,11 @@ import (
 	"time"
 )
 
-type Role string
+type UserRole string
 
 const (
-	RoleAdmin Role = "admin"
-	RoleUser  Role = "user"
+	UserRoleAdmin UserRole = "admin"
+	UserRoleUser  UserRole = "user"
 
 	UserSerialPrefix = "USR"
 )

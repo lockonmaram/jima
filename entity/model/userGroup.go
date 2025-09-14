@@ -2,8 +2,13 @@ package model
 
 import "time"
 
+type UserGroupRole string
+
 const (
 	UserGroupSerialPrefix = "USRGRP"
+
+	UserGroupRoleManager UserGroupRole = "manager"
+	UserGroupRoleMember  UserGroupRole = "member"
 )
 
 type UserGroup struct {

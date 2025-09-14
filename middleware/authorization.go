@@ -36,7 +36,7 @@ func Authorization(config config.Config) gin.HandlerFunc {
 	}
 }
 
-func ValidateUserRole(allowedRoles ...model.Role) gin.HandlerFunc {
+func ValidateUserRole(allowedRoles ...model.UserRole) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userAuth := helper.GetUserAuthClaims(c)
 		if userAuth == nil {

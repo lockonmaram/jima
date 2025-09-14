@@ -30,7 +30,7 @@ func InitRouter(
 
 	authV1 := v1.Group("/auth")
 	authV1.POST("/", authController.Authenticate)
-	authV1.POST("/register", middleware.Authorization(config), middleware.ValidateUserRole(model.RoleAdmin), authController.Register)
+	authV1.POST("/register", middleware.Authorization(config), middleware.ValidateUserRole(model.UserRoleAdmin), authController.Register)
 
 	groupV1 := v1.Group("/group")
 	groupV1.Use(middleware.Authorization(config))
