@@ -97,7 +97,11 @@ func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRe
 		return nil, helper.ErrDatabase
 	}
 
-	go s.smtpService.SendMail([]string{user.Email}, []string{}, "Register Success", "Congratulations!\nYou have successfully registered with JIMA!")
+	go s.smtpService.SendMail(
+		user.Email,
+		string(helper.SMTP_SubjectRegisterSuccess),
+		helper.GenerateSMTPTemplate(helper.SMTP_TemplateRegisterSuccess, user.Name),
+	)
 
 	return &api_entity.AuthRegisterResponse{
 		Serial:   user.Serial,
