@@ -27,7 +27,9 @@ type Response struct {
 func HandleResponse(c *gin.Context, resp Response) {
 	responseMessage := StatusMessageSuccess
 
-	if resp.Status == 400 {
+	if resp.Status == 0 {
+		resp.Status = http.StatusOK
+	} else if resp.Status == 400 {
 		responseMessage = StatusMessageInvalidRequest
 	} else if resp.Status > 400 {
 		responseMessage = StatusMessageError

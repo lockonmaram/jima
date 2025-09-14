@@ -4,6 +4,7 @@ import (
 	"jima/config"
 	"jima/controller"
 	"jima/entity/model"
+	"jima/helper"
 	"jima/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,13 @@ func InitRouter(
 	groupController controller.GroupController,
 ) *gin.Engine {
 	router := gin.Default()
+
+	// Health check
+	router.GET("/health", func(c *gin.Context) {
+		helper.HandleResponse(c, helper.Response{
+			Message: "healthy",
+		})
+	})
 
 	// API v1
 	api := router.Group("/api")
