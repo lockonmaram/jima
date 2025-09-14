@@ -3,7 +3,7 @@ CREATE TABLE auth.user_groups (
   serial varchar PRIMARY KEY,
   user_serial varchar,
   group_serial varchar,
-  user_group_role varchar,
+  role varchar,
 
   created_at timestamp,
   created_by varchar,
