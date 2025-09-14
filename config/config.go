@@ -18,6 +18,13 @@ type Config struct {
 	JWTSecret     string `envconfig:"JWT_SECRET"`
 	JWTExpireDays int    `envconfig:"JWT_EXPIRE_DAYS" default:"7"`
 
+	// SMTP
+	SMTPHost       string `envconfig:"SMTP_HOST" default:"smtp.gmail.com"`
+	SMTPPort       int    `envconfig:"SMTP_PORT" default:"587"`
+	SMTPSenderName string `envconfig:"SMTP_SENDER_NAME" default:"noreply"`
+	SMTPEmail      string `envconfig:"SMTP_EMAIL" default:""`
+	SMTPPassword   string `envconfig:"SMTP_PASSWORD" default:""`
+
 	// Database
 	PostgresDBHost      string `envconfig:"POSTGRES_DB_HOST" default:"localhost"`
 	PostgresDBPort      int    `envconfig:"POSTGRES_DB_PORT" default:"5432"`

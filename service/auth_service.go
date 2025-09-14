@@ -19,15 +19,18 @@ type AuthService interface {
 
 type authService struct {
 	config         config.Config
+	smtpService    SMTPService
 	userRepository repository.UserRepository
 }
 
 func NewAuthService(
 	config config.Config,
+	smtpService SMTPService,
 	userRepo repository.UserRepository,
 ) AuthService {
 	return &authService{
 		config:         config,
+		smtpService:    smtpService,
 		userRepository: userRepo,
 	}
 }
@@ -93,6 +96,8 @@ func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRe
 	if err != nil {
 		return nil, helper.ErrDatabase
 	}
+
+	go s.smtpService.SendMail([]string{user.Email}, []string{}, "Register Success", "Congratulations!\nYou have successfully registered with JIMA!")
 
 	return &api_entity.AuthRegisterResponse{
 		Serial:   user.Serial,
