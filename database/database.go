@@ -9,12 +9,13 @@ import (
 )
 
 func NewPostgresDB(cfg config.Config) *gorm.DB {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
 		cfg.PostgresDBHost,
 		cfg.PostgresDBUser,
 		cfg.PostgresDBPassword,
 		cfg.PostgresDBName,
-		fmt.Sprint(cfg.PostgresDBPort),
+		cfg.PostgresDBPort,
+		cfg.PostgresDBSSLMode,
 		cfg.PostgresDBTimezone,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

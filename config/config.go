@@ -32,6 +32,7 @@ type Config struct {
 	PostgresDBUser      string `envconfig:"POSTGRES_DB_USER" default:"user"`
 	PostgresDBPassword  string `envconfig:"POSTGRES_DB_PASSWORD" default:"password"`
 	PostgresDBTimezone  string `envconfig:"POSTGRES_DB_TIMEZONE" default:"UTC"`
+	PostgresDBSSLMode   string `envconfig:"POStaGRES_DB_SSL_MODE" default:"require"`
 	PostgresDBDebugMode bool   `envconfig:"POSTGRES_DB_DEBUG_MODE" default:"false"`
 }
 
