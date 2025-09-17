@@ -89,7 +89,7 @@ func (s *userService) UpdateUserProfile(c *gin.Context, request api_entity.UserU
 	}
 
 	// Check if user already exists
-	user, err := s.userRepository.GetUserBySerial(request.Serial)
+	_, err = s.userRepository.GetUserBySerial(request.Serial)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (s *userService) UpdateUserProfile(c *gin.Context, request api_entity.UserU
 		return nil, helper.ErrInvalidRequest
 	}
 
-	user, err = s.userRepository.UpdateUserBySerial(request.Serial, updatePayload)
+	user, err := s.userRepository.UpdateUserBySerial(request.Serial, updatePayload)
 	if err != nil {
 		return nil, helper.ErrDatabase
 	}
