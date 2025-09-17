@@ -11,6 +11,7 @@ type ValidationType string
 const (
 	ValidationTypeRequired ValidationType = "required"
 	ValidationTypeEmail    ValidationType = "email"
+	ValidationTypeURI      ValidationType = "uri"
 )
 
 func ValidateStruct(data any) error {
@@ -18,10 +19,20 @@ func ValidateStruct(data any) error {
 
 	for i := 0; i < dataType.NumField(); i++ {
 		field := dataType.Field(i)
-		jsonTag := field.Tag.Get("json")
 		validationTags := strings.Split(field.Tag.Get("validation"), ",")
 
-		err := validateField(jsonTag, reflect.ValueOf(data).Elem().Field(i), validationTags)
+		jsonTag := field.Tag.Get("json")
+		uriTag := field.Tag.Get("uri")
+		tag := ""
+
+		if jsonTag != "" {
+			tag = jsonTag
+		} else if uriTag != "" {
+			tag = uriTag
+			validationTags = append(validationTags, string(ValidationTypeURI))
+		}
+
+		err := validateField(tag, reflect.ValueOf(data).Elem().Field(i), validationTags)
 		if err != nil {
 			return err
 		}
@@ -38,17 +49,23 @@ func getOriginalStructType(data any) reflect.Type {
 	return dataType
 }
 
-func validateField(jsonTag string, value reflect.Value, validationTags []string) error {
-	for _, tag := range validationTags {
-		switch ValidationType(tag) {
+func validateField(tag string, value reflect.Value, validationTags []string) error {
+	for _, validation := range validationTags {
+		switch ValidationType(validation) {
 		case ValidationTypeRequired:
 			if isEmptyValue(value) {
-				return fmt.Errorf("%s is required", jsonTag)
+				return fmt.Errorf("%s is required", tag)
 			}
 		case ValidationTypeEmail:
 			if value.Kind() == reflect.String {
 				if !isValidEmail(value.String()) {
-					return fmt.Errorf("%s format is invalid", jsonTag)
+					return fmt.Errorf("%s format is invalid", tag)
+				}
+			}
+		case ValidationTypeURI:
+			if value.Kind() == reflect.String {
+				if value.String() == fmt.Sprintf(":%s", tag) {
+					return fmt.Errorf("parameter %s is required", tag)
 				}
 			}
 		}

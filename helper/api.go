@@ -51,6 +51,14 @@ func HandleResponse(c *gin.Context, resp Response) {
 }
 
 func HandleRequest(c *gin.Context, request any) (err error) {
+	if err := c.BindUri(request); err != nil {
+		HandleResponse(c, Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return err
+	}
+
 	if err := c.BindJSON(request); err != nil {
 		HandleResponse(c, Response{
 			Status: http.StatusInternalServerError,
