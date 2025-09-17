@@ -22,3 +22,8 @@ type UserUpdateUserProfileRequest struct {
 type UserUpdateUserProfileResponse struct {
 	Name string `json:"name,omitempty"`
 }
+
+type UserChangePasswordRequest struct {
+	Serial   string `uri:"serial" validation:"required"`
+	Password string `json:"password"`
+}

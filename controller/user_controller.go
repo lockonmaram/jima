@@ -13,6 +13,7 @@ import (
 type UserController interface {
 	CreateUser(c *gin.Context)
 	UpdateUserProfile(c *gin.Context)
+	ChangePassword(c *gin.Context)
 }
 
 type userController struct {
@@ -72,5 +73,33 @@ func (uc *userController) UpdateUserProfile(c *gin.Context) {
 	helper.HandleResponse(c, helper.Response{
 		Status: http.StatusOK,
 		Data:   response,
+	})
+}
+
+func (uc *userController) ChangePassword(c *gin.Context) {
+	request := api_entity.UserChangePasswordRequest{}
+	if err := helper.HandleRequest(c, &request); err != nil {
+		return
+	}
+
+	err := uc.userService.ChangePassword(c, request)
+	if err != nil {
+		if errors.Is(err, helper.ErrUserAlreadyExists) {
+			helper.HandleResponse(c, helper.Response{
+				Status: http.StatusConflict,
+				Error:  err.Error(),
+			})
+			return
+		}
+
+		helper.HandleResponse(c, helper.Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
+	helper.HandleResponse(c, helper.Response{
+		Status: http.StatusOK,
 	})
 }

@@ -15,6 +15,7 @@ import (
 type UserService interface {
 	CreateUser(c *gin.Context, request api_entity.UserCreateUserRequest) (response *api_entity.UserCreateUserResponse, err error)
 	UpdateUserProfile(c *gin.Context, request api_entity.UserUpdateUserProfileRequest) (response *api_entity.UserUpdateUserProfileResponse, err error)
+	ChangePassword(c *gin.Context, request api_entity.UserChangePasswordRequest) (err error)
 }
 
 type userService struct {
@@ -113,4 +114,35 @@ func (s *userService) UpdateUserProfile(c *gin.Context, request api_entity.UserU
 	return &api_entity.UserUpdateUserProfileResponse{
 		Name: user.Name,
 	}, nil
+}
+
+func (s *userService) ChangePassword(c *gin.Context, request api_entity.UserChangePasswordRequest) (err error) {
+	// Check update eligibility from auth
+	if !helper.IsUserAdminOrSelf(c, request.Serial) {
+		return helper.ErrForbiddenUserAction
+	}
+
+	// Check if user already exists
+	user, err := s.userRepository.GetUserBySerial(request.Serial)
+	if err != nil {
+		return err
+	}
+
+	// Check if new & old password is the same
+	if helper.CompareHashAndPassword(user.Password, request.Password) {
+		return helper.ErrUnchangedPassword
+	}
+
+	// Update user profile
+	hashedPassword, err := helper.HashPassword(request.Password)
+	if err != nil {
+		return err
+	}
+
+	err = s.userRepository.UpdateUserPassword(request.Serial, hashedPassword)
+	if err != nil {
+		return helper.ErrDatabase
+	}
+
+	return nil
 }

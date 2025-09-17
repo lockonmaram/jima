@@ -41,6 +41,7 @@ func InitRouter(
 	userV1.Use(middleware.Authorization(config))
 	userV1.POST("/", middleware.ValidateUserRole(model.UserRoleAdmin), userController.CreateUser)
 	userV1.PUT("/:serial/profile", userController.UpdateUserProfile)
+	userV1.PUT("/:serial/change-password", userController.ChangePassword)
 
 	return router
 }

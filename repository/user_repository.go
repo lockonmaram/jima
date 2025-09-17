@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetUserByUsernameOrEmail(username string, email string) (user *model.User, err error)
 	CreateUser(user model.User) error
 	UpdateUserBySerial(serial string, updatePayload map[string]any) (user *model.User, err error)
+	UpdateUserPassword(serial, password string) (err error)
 }
 
 type userRepository struct {
@@ -49,4 +50,8 @@ func (r *userRepository) UpdateUserBySerial(serial string, updatePayload map[str
 	returningClause := clause.Returning{Columns: helper.FormatUpdatePayloadToClauseColumns(updatePayload)}
 	err = r.pgdb.Model(user).Clauses(returningClause).Where("serial = ?", serial).Updates(updatePayload).Error
 	return user, err
+}
+
+func (r *userRepository) UpdateUserPassword(serial, password string) (err error) {
+	return r.pgdb.Model(model.User{}).Where("serial = ?", serial).Updates(map[string]any{"password": password}).Error
 }
