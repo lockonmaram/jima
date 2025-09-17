@@ -39,7 +39,8 @@ func InitRouter(
 
 	userV1 := v1.Group("/user")
 	userV1.Use(middleware.Authorization(config))
-	userV1.POST("/", middleware.Authorization(config), middleware.ValidateUserRole(model.UserRoleAdmin), userController.CreateUser)
+	userV1.POST("/", middleware.ValidateUserRole(model.UserRoleAdmin), userController.CreateUser)
+	userV1.PUT("/:serial/profile", userController.UpdateUserProfile)
 
 	return router
 }

@@ -12,6 +12,7 @@ import (
 
 type UserController interface {
 	CreateUser(c *gin.Context)
+	UpdateUserProfile(c *gin.Context)
 }
 
 type userController struct {
@@ -24,13 +25,13 @@ func NewUserController(userService service.UserService) UserController {
 	}
 }
 
-func (ac *userController) CreateUser(c *gin.Context) {
-	request := api_entity.UserCreateRequest{}
+func (uc *userController) CreateUser(c *gin.Context) {
+	request := api_entity.UserCreateUserRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
 		return
 	}
 
-	response, err := ac.userService.CreateUser(c, request)
+	response, err := uc.userService.CreateUser(c, request)
 	if err != nil {
 		if errors.Is(err, helper.ErrUserAlreadyExists) {
 			helper.HandleResponse(c, helper.Response{
@@ -40,6 +41,27 @@ func (ac *userController) CreateUser(c *gin.Context) {
 			return
 		}
 
+		helper.HandleResponse(c, helper.Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
+	helper.HandleResponse(c, helper.Response{
+		Status: http.StatusOK,
+		Data:   response,
+	})
+}
+
+func (uc *userController) UpdateUserProfile(c *gin.Context) {
+	request := api_entity.UserUpdateUserProfileRequest{}
+	if err := helper.HandleRequest(c, &request); err != nil {
+		return
+	}
+
+	response, err := uc.userService.UpdateUserProfile(c, request)
+	if err != nil {
 		helper.HandleResponse(c, helper.Response{
 			Status: http.StatusInternalServerError,
 			Error:  err.Error(),

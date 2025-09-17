@@ -13,7 +13,8 @@ import (
 )
 
 type UserService interface {
-	CreateUser(c *gin.Context, request api_entity.UserCreateRequest) (response *api_entity.UserCreateResponse, err error)
+	CreateUser(c *gin.Context, request api_entity.UserCreateUserRequest) (response *api_entity.UserCreateUserResponse, err error)
+	UpdateUserProfile(c *gin.Context, request api_entity.UserUpdateUserProfileRequest) (response *api_entity.UserUpdateUserProfileResponse, err error)
 }
 
 type userService struct {
@@ -34,7 +35,7 @@ func NewUserService(
 	}
 }
 
-func (s *userService) CreateUser(c *gin.Context, request api_entity.UserCreateRequest) (response *api_entity.UserCreateResponse, err error) {
+func (s *userService) CreateUser(c *gin.Context, request api_entity.UserCreateUserRequest) (response *api_entity.UserCreateUserResponse, err error) {
 	// Check if user already exists
 	existingUser, err := s.userRepository.GetUserByUsernameOrEmail(request.Username, request.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -72,11 +73,44 @@ func (s *userService) CreateUser(c *gin.Context, request api_entity.UserCreateRe
 		helper.GenerateSMTPTemplate(helper.SMTP_TemplateRegisterSuccess, user.Name),
 	)
 
-	return &api_entity.UserCreateResponse{
+	return &api_entity.UserCreateUserResponse{
 		Serial:   user.Serial,
 		Username: user.Username,
 		Email:    user.Email,
 		Name:     user.Name,
 		Role:     user.Role,
+	}, nil
+}
+
+func (s *userService) UpdateUserProfile(c *gin.Context, request api_entity.UserUpdateUserProfileRequest) (response *api_entity.UserUpdateUserProfileResponse, err error) {
+	// Check update eligibility from auth
+	if !helper.IsUserAdminOrSelf(c, request.Serial) {
+		return nil, helper.ErrForbiddenUserAction
+	}
+
+	// Check if user already exists
+	user, err := s.userRepository.GetUserBySerial(request.Serial)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update user profile
+	updatePayload := make(map[string]any)
+	if request.Name != "" {
+		updatePayload["name"] = request.Name
+	}
+
+	// Return error when no field update is valid
+	if len(updatePayload) < 1 {
+		return nil, helper.ErrInvalidRequest
+	}
+
+	user, err = s.userRepository.UpdateUserBySerial(request.Serial, updatePayload)
+	if err != nil {
+		return nil, helper.ErrDatabase
+	}
+
+	return &api_entity.UserUpdateUserProfileResponse{
+		Name: user.Name,
 	}, nil
 }

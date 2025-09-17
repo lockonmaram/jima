@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"jima/entity/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -86,4 +87,12 @@ func GetUserAuthClaims(c *gin.Context) *Claims {
 	}
 
 	return userAuth
+}
+
+func IsUserAdminOrSelf(c *gin.Context, serial string) bool {
+	userAuth := GetUserAuthClaims(c)
+	if userAuth.Role != string(model.UserRoleAdmin) && userAuth.Serial != serial {
+		return false
+	}
+	return true
 }
