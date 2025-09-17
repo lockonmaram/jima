@@ -29,16 +29,19 @@ func main() {
 
 	// Services
 	authService := service.NewAuthService(config, smtpService, userRepository)
+	userService := service.NewUserService(config, smtpService, userRepository)
 	groupService := service.NewGroupService(config, userRepository, groupRepository, userGroupRepository)
 
 	// Controller
 	authController := controller.NewAuthController(authService)
+	userController := controller.NewUserController(userService)
 	groupController := controller.NewGroupController(groupService)
 
 	// Init Router
 	r := router.InitRouter(
 		config,
 		authController,
+		userController,
 		groupController,
 	)
 	r.Run(fmt.Sprintf(":%d", config.Port))

@@ -13,6 +13,7 @@ import (
 func InitRouter(
 	config config.Config,
 	authController controller.AuthController,
+	userController controller.UserController,
 	groupController controller.GroupController,
 ) *gin.Engine {
 	router := gin.Default()
@@ -30,11 +31,15 @@ func InitRouter(
 
 	authV1 := v1.Group("/auth")
 	authV1.POST("/", authController.Authenticate)
-	authV1.POST("/register", middleware.Authorization(config), middleware.ValidateUserRole(model.UserRoleAdmin), authController.Register)
+	authV1.POST("/register", authController.Register)
 
 	groupV1 := v1.Group("/group")
 	groupV1.Use(middleware.Authorization(config))
 	groupV1.POST("/", groupController.CreateGroup)
+
+	userV1 := v1.Group("/user")
+	userV1.Use(middleware.Authorization(config))
+	userV1.POST("/", middleware.Authorization(config), middleware.ValidateUserRole(model.UserRoleAdmin), userController.CreateUser)
 
 	return router
 }
