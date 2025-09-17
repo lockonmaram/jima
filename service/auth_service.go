@@ -5,6 +5,7 @@ import (
 	"jima/config"
 	api_entity "jima/entity/api"
 	"jima/entity/model"
+	model_entity "jima/entity/model"
 	"jima/helper"
 	"jima/repository"
 
@@ -88,8 +89,8 @@ func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRe
 		Email:     request.Email,
 		Name:      request.Name,
 		Password:  hashedPassword,
-		Role:      request.Role,
-		CreatedBy: helper.GetUserAuthClaims(c).Serial,
+		Role:      string(model_entity.UserRoleUser),
+		CreatedBy: serial,
 	}
 
 	err = s.userRepository.CreateUser(user)
@@ -108,6 +109,5 @@ func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRe
 		Username: user.Username,
 		Email:    user.Email,
 		Name:     user.Name,
-		Role:     user.Role,
 	}, nil
 }
