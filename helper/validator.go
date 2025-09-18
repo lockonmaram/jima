@@ -12,6 +12,7 @@ const (
 	ValidationTypeRequired ValidationType = "required"
 	ValidationTypeEmail    ValidationType = "email"
 	ValidationTypeURI      ValidationType = "uri"
+	ValidationTypeForm     ValidationType = "form"
 )
 
 func ValidateStruct(data any) error {
@@ -23,6 +24,7 @@ func ValidateStruct(data any) error {
 
 		jsonTag := field.Tag.Get("json")
 		uriTag := field.Tag.Get("uri")
+		formTag := field.Tag.Get("form")
 		tag := ""
 
 		if jsonTag != "" {
@@ -30,6 +32,8 @@ func ValidateStruct(data any) error {
 		} else if uriTag != "" {
 			tag = uriTag
 			validationTags = append(validationTags, string(ValidationTypeURI))
+		} else if formTag != "" {
+			tag = formTag
 		}
 
 		err := validateField(tag, reflect.ValueOf(data).Elem().Field(i), validationTags)

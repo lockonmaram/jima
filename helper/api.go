@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"bytes"
+	"io"
 	"jima/entity/model"
 	"net/http"
 
@@ -58,6 +60,29 @@ func HandleRequest(c *gin.Context, request any) (err error) {
 			Error:  err.Error(),
 		})
 		return err
+	}
+
+	if err := c.BindQuery(request); err != nil {
+		HandleResponse(c, Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return err
+	}
+
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		HandleResponse(c, Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return err
+	}
+
+	// Workaround for BindJSON returns EOF on empty body
+	if len(body) == 0 {
+		body = []byte("{}")
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 	}
 
 	if err := c.BindJSON(request); err != nil {
