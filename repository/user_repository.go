@@ -66,7 +66,9 @@ func (r *userRepository) UpdateUserPasswordBySerialOrToken(identifier, password 
 	if identifier == "" {
 		return helper.ErrInvalidRequest
 	}
-	return r.pgdb.Model(model.User{}).Where("serial = ? OR password_token = ?", identifier, identifier).Update("password", password).Error
+	return r.pgdb.Model(model.User{}).
+		Where("serial = ? OR password_token = ?", identifier, identifier).
+		Updates(map[string]any{"password": password, "password_token": nil}).Error
 }
 
 func (r *userRepository) SetPasswordToken(serial, passwordToken string) (err error) {
