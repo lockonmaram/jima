@@ -18,6 +18,9 @@ func InitRouter(
 ) *gin.Engine {
 	router := gin.Default()
 
+	// Load HTML Templates
+	router.LoadHTMLFiles("./view/auth/reset-password-form.template.html")
+
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
 		helper.HandleResponse(c, helper.Response{
@@ -34,6 +37,7 @@ func InitRouter(
 	authV1.POST("/register", authController.Register)
 	authV1.POST("/set-password", authController.SetPassword)
 	authV1.POST("/forgot-password", authController.ForgotPassword)
+	authV1.GET("/set-password", authController.ResetPasswordPage)
 
 	groupV1 := v1.Group("/group")
 	groupV1.Use(middleware.Authorization(config))

@@ -33,7 +33,7 @@ func main() {
 	groupService := service.NewGroupService(config, userRepository, groupRepository, userGroupRepository)
 
 	// Controller
-	authController := controller.NewAuthController(authService)
+	authController := controller.NewAuthController(config, authService)
 	userController := controller.NewUserController(userService)
 	groupController := controller.NewGroupController(groupService)
 
