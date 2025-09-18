@@ -16,7 +16,7 @@ func Authorization(config config.Config) gin.HandlerFunc {
 		if token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
-				"message": helper.ErrUnauthorizedToken.Error(),
+				"message": helper.ErrTokenRequired.Error(),
 			})
 			return
 		}

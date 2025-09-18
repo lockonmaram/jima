@@ -13,6 +13,7 @@ type Config struct {
 	// General
 	Environment string `envconfig:"ENVIRONMENT" default:"development"`
 	Port        int    `envconfig:"PORT" default:"8080"`
+	BaseURL     string `envconfig:"BASE_URL"`
 
 	// JWT
 	JWTSecret     string `envconfig:"JWT_SECRET"`

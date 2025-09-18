@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"jima/config"
 	api_entity "jima/entity/api"
 	"jima/entity/model"
 	"jima/helper"
 	"jima/repository"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -15,6 +17,8 @@ import (
 type AuthService interface {
 	Authenticate(c *gin.Context, username, password string) (response *api_entity.AuthAuthenticateResponse, err error)
 	Register(c *gin.Context, request api_entity.AuthRegisterRequest) (response *api_entity.AuthRegisterResponse, err error)
+	SetPassword(c *gin.Context, request api_entity.AuthSetPasswordRequest) (err error)
+	ForgotPassword(c *gin.Context, request api_entity.AuthForgotPasswordRequest) (err error)
 }
 
 type authService struct {
@@ -88,8 +92,8 @@ func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRe
 		Email:     request.Email,
 		Name:      request.Name,
 		Password:  hashedPassword,
-		Role:      request.Role,
-		CreatedBy: helper.GetUserAuthClaims(c).Serial,
+		Role:      string(model.UserRoleUser),
+		CreatedBy: serial,
 	}
 
 	err = s.userRepository.CreateUser(user)
@@ -108,6 +112,64 @@ func (s *authService) Register(c *gin.Context, request api_entity.AuthRegisterRe
 		Username: user.Username,
 		Email:    user.Email,
 		Name:     user.Name,
-		Role:     user.Role,
 	}, nil
+}
+
+func (s *authService) SetPassword(c *gin.Context, request api_entity.AuthSetPasswordRequest) (err error) {
+	// Check if user already exists
+	user, err := s.userRepository.GetUserByPasswordToken(request.PasswordToken)
+	if err != nil {
+		return err
+	}
+
+	// Check if new & old password is the same
+	if helper.CompareHashAndPassword(user.Password, request.Password) {
+		return helper.ErrUnchangedPassword
+	}
+
+	// Hash new password
+	hashedPassword, err := helper.HashPassword(request.Password)
+	if err != nil {
+		return err
+	}
+
+	err = s.userRepository.UpdateUserPasswordBySerialOrToken(request.PasswordToken, hashedPassword)
+	if err != nil {
+		return helper.ErrDatabase
+	}
+
+	return nil
+}
+
+func (s *authService) ForgotPassword(c *gin.Context, request api_entity.AuthForgotPasswordRequest) (err error) {
+	// Check if user exists
+	user, err := s.userRepository.GetUserByUsernameOrEmail(request.UserParam, request.UserParam)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	// Generate password token
+	passwordToken, err := helper.HashPassword(fmt.Sprintf("%s:%v", user.Serial, time.Now().Unix()))
+	if err != nil {
+		return err
+	}
+
+	// Update user
+	err = s.userRepository.SetPasswordToken(user.Serial, passwordToken)
+	if err != nil {
+		return err
+	}
+
+	// Send token by email
+	resetPasswordURL := fmt.Sprintf("%s:%d/api/v1/auth/forgot-password?t=%s", s.config.BaseURL, s.config.Port, passwordToken)
+	err = s.smtpService.SendMail(
+		user.Email,
+		string(helper.SMTP_SubjectRegisterSuccess),
+		helper.GenerateSMTPTemplate(helper.SMTP_TemplateForgotPassword, resetPasswordURL),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

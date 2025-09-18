@@ -1,6 +1,9 @@
 package helper
 
 import (
+	"errors"
+	"io"
+	"jima/entity/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +54,23 @@ func HandleResponse(c *gin.Context, resp Response) {
 }
 
 func HandleRequest(c *gin.Context, request any) (err error) {
-	if err := c.BindJSON(request); err != nil {
+	if err := c.BindUri(request); err != nil {
+		HandleResponse(c, Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return err
+	}
+
+	if err := c.BindQuery(request); err != nil {
+		HandleResponse(c, Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return err
+	}
+
+	if err := c.BindJSON(request); err != nil && !errors.Is(err, io.EOF) {
 		HandleResponse(c, Response{
 			Status: http.StatusInternalServerError,
 			Error:  err.Error(),
@@ -78,4 +97,12 @@ func GetUserAuthClaims(c *gin.Context) *Claims {
 	}
 
 	return userAuth
+}
+
+func IsUserAdminOrSelf(c *gin.Context, serial string) bool {
+	userAuth := GetUserAuthClaims(c)
+	if userAuth.Role != string(model.UserRoleAdmin) && userAuth.Serial != serial {
+		return false
+	}
+	return true
 }

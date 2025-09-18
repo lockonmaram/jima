@@ -9,7 +9,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	golang.org/x/crypto v0.41.0
 	gorm.io/driver/postgres v1.6.0
-	gorm.io/gorm v1.30.3
+	gorm.io/gorm v1.31.0
 )
 
 require (

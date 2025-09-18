@@ -30,7 +30,7 @@ func NewSMTPService(
 func (s *smtpService) SendMail(to string, subject, message string) error {
 	body := "From: " + s.client.Name + "\n" +
 		"To: " + to + "\n" +
-		"Subject: " + subject + "\n\n" +
+		"Subject: " + subject + "\n" +
 		message
 
 	err := smtp.SendMail(s.client.Address, s.client.Auth, s.client.Email, []string{to}, []byte(body))
