@@ -24,3 +24,12 @@ type AuthRegisterResponse struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`
 }
+
+type AuthSetPasswordRequest struct {
+	PasswordToken string `json:"password_token" validation:"required"`
+	Password      string `json:"password"`
+}
+
+type AuthForgotPasswordRequest struct {
+	UserParam string `json:"userParam" validation:"required"` // username or email
+}

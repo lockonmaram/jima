@@ -133,13 +133,13 @@ func (s *userService) ChangePassword(c *gin.Context, request api_entity.UserChan
 		return helper.ErrUnchangedPassword
 	}
 
-	// Update user profile
+	// Hash new password
 	hashedPassword, err := helper.HashPassword(request.Password)
 	if err != nil {
 		return err
 	}
 
-	err = s.userRepository.UpdateUserPassword(request.Serial, hashedPassword)
+	err = s.userRepository.UpdateUserPasswordBySerialOrToken(request.Serial, hashedPassword)
 	if err != nil {
 		return helper.ErrDatabase
 	}

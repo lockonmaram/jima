@@ -10,10 +10,12 @@ import (
 
 type UserRepository interface {
 	GetUserBySerial(serial string) (user *model.User, err error)
+	GetUserByPasswordToken(passwordToken string) (user *model.User, err error)
 	GetUserByUsernameOrEmail(username string, email string) (user *model.User, err error)
 	CreateUser(user model.User) error
 	UpdateUserBySerial(serial string, updatePayload map[string]any) (user *model.User, err error)
-	UpdateUserPassword(serial, password string) (err error)
+	UpdateUserPasswordBySerialOrToken(identifier, password string) (err error)
+	SetPasswordToken(serial, passwordToken string) (err error)
 }
 
 type userRepository struct {
@@ -26,6 +28,14 @@ func NewUserRepository(pgdb *gorm.DB) UserRepository {
 
 func (r *userRepository) GetUserBySerial(serial string) (user *model.User, err error) {
 	err = r.pgdb.Where("serial = ?", serial).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *userRepository) GetUserByPasswordToken(passwordToken string) (user *model.User, err error) {
+	err = r.pgdb.Where("password_token = ?", passwordToken).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +62,13 @@ func (r *userRepository) UpdateUserBySerial(serial string, updatePayload map[str
 	return user, err
 }
 
-func (r *userRepository) UpdateUserPassword(serial, password string) (err error) {
-	return r.pgdb.Model(model.User{}).Where("serial = ?", serial).Updates(map[string]any{"password": password}).Error
+func (r *userRepository) UpdateUserPasswordBySerialOrToken(identifier, password string) (err error) {
+	if identifier == "" {
+		return helper.ErrInvalidRequest
+	}
+	return r.pgdb.Model(model.User{}).Where("serial = ? OR password_token = ?", identifier, identifier).Update("password", password).Error
+}
+
+func (r *userRepository) SetPasswordToken(serial, passwordToken string) (err error) {
+	return r.pgdb.Model(model.User{}).Where("serial = ?", serial).Update("password_token", passwordToken).Error
 }

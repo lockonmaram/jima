@@ -32,6 +32,8 @@ func InitRouter(
 	authV1 := v1.Group("/auth")
 	authV1.POST("/", authController.Authenticate)
 	authV1.POST("/register", authController.Register)
+	authV1.POST("/set-password", authController.SetPassword)
+	authV1.POST("/forgot-password", authController.ForgotPassword)
 
 	groupV1 := v1.Group("/group")
 	groupV1.Use(middleware.Authorization(config))
