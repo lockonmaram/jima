@@ -19,5 +19,5 @@ type Group struct {
 }
 
 func (Group) TableName() string {
-	return "auth.groups"
+	return "jima_auth.groups"
 }

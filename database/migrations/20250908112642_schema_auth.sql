@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE SCHEMA auth;
+CREATE SCHEMA jima_auth;
 
 -- +goose Down
-DROP SCHEMA auth;
+DROP SCHEMA jima_auth;

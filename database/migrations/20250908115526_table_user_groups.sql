@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE auth.user_groups (
+CREATE TABLE jima_auth.user_groups (
   serial varchar PRIMARY KEY,
   user_serial varchar,
   group_serial varchar,
@@ -13,8 +13,8 @@ CREATE TABLE auth.user_groups (
   deleted_by varchar
 );
 
-ALTER TABLE auth.user_groups ADD FOREIGN KEY (user_serial) REFERENCES auth.users (serial);
-ALTER TABLE auth.user_groups ADD FOREIGN KEY (group_serial) REFERENCES auth.groups (serial);
+ALTER TABLE jima_auth.user_groups ADD FOREIGN KEY (user_serial) REFERENCES jima_auth.users (serial);
+ALTER TABLE jima_auth.user_groups ADD FOREIGN KEY (group_serial) REFERENCES jima_auth.groups (serial);
 
 -- +goose Down
-DROP TABLE auth.user_groups;
+DROP TABLE jima_auth.user_groups;
