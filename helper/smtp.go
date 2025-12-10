@@ -6,10 +6,11 @@ type SMTP_SUBJECT string
 type SMTP_TEMPLATE string
 
 const (
-	SMTP_SubjectRegisterSuccess SMTP_SUBJECT = "Register Success"
-
+	SMTP_SubjectRegisterSuccess  SMTP_SUBJECT  = "Register Success"
 	SMTP_TemplateRegisterSuccess SMTP_TEMPLATE = "Congratulations %s!\nYou have successfully registered with JIMA!"
-	SMTP_TemplateForgotPassword  SMTP_TEMPLATE = "Please access the link below to reset your password.\n %s"
+
+	SMTP_SubjectResetPassword  SMTP_SUBJECT  = "Reset Password"
+	SMTP_TemplateResetPassword SMTP_TEMPLATE = "Please access the link below to reset your password.\n %s"
 )
 
 func GenerateSMTPTemplate(template SMTP_TEMPLATE, params ...any) string {

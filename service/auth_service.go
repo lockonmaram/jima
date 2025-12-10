@@ -161,11 +161,11 @@ func (s *authService) ForgotPassword(c *gin.Context, request api_entity.AuthForg
 	}
 
 	// Send token by email
-	resetPasswordURL := fmt.Sprintf("%s:%d/api/v1/auth/forgot-password?t=%s", s.config.BaseURL, s.config.Port, passwordToken)
+	resetPasswordURL := fmt.Sprintf("%s:%d/api/v1/auth/set-password?t=%s", s.config.BaseURL, s.config.Port, passwordToken)
 	err = s.smtpService.SendMail(
 		user.Email,
-		string(helper.SMTP_SubjectRegisterSuccess),
-		helper.GenerateSMTPTemplate(helper.SMTP_TemplateForgotPassword, resetPasswordURL),
+		string(helper.SMTP_SubjectResetPassword),
+		helper.GenerateSMTPTemplate(helper.SMTP_TemplateResetPassword, resetPasswordURL),
 	)
 	if err != nil {
 		return err

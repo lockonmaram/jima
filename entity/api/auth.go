@@ -25,15 +25,15 @@ type AuthRegisterResponse struct {
 	Name     string `json:"name"`
 }
 
+type AuthForgotPasswordRequest struct {
+	UserParam string `json:"userParam" validation:"required"` // username or email
+}
+
 type AuthSetPasswordRequest struct {
 	PasswordToken string `form:"t" validation:"required"`
 	Password      string `json:"password" validation:"required"`
 }
 
-type AuthForgotPasswordRequest struct {
-	UserParam string `json:"userParam" validation:"required"` // username or email
-}
-
-type AuthResetPasswordPageRequest struct {
+type AuthSetPasswordPageRequest struct {
 	PasswordToken string `form:"t" validation:"required"`
 }

@@ -15,9 +15,9 @@ import (
 type AuthController interface {
 	Authenticate(c *gin.Context)
 	Register(c *gin.Context)
-	SetPassword(c *gin.Context)
 	ForgotPassword(c *gin.Context)
-	ResetPasswordPage(c *gin.Context)
+	SetPassword(c *gin.Context)
+	SetPasswordPage(c *gin.Context)
 }
 
 type authController struct {
@@ -96,26 +96,6 @@ func (ac *authController) Register(c *gin.Context) {
 	})
 }
 
-func (ac *authController) SetPassword(c *gin.Context) {
-	request := api_entity.AuthSetPasswordRequest{}
-	if err := helper.HandleRequest(c, &request); err != nil {
-		return
-	}
-
-	err := ac.authService.SetPassword(c, request)
-	if err != nil {
-		helper.HandleResponse(c, helper.Response{
-			Status: http.StatusInternalServerError,
-			Error:  err.Error(),
-		})
-		return
-	}
-
-	helper.HandleResponse(c, helper.Response{
-		Status: http.StatusOK,
-	})
-}
-
 func (ac *authController) ForgotPassword(c *gin.Context) {
 	request := api_entity.AuthForgotPasswordRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
@@ -137,15 +117,36 @@ func (ac *authController) ForgotPassword(c *gin.Context) {
 	})
 }
 
-func (ac *authController) ResetPasswordPage(c *gin.Context) {
-	request := api_entity.AuthResetPasswordPageRequest{}
+func (ac *authController) SetPassword(c *gin.Context) {
+	request := api_entity.AuthSetPasswordRequest{}
+	if err := helper.HandleRequest(c, &request); err != nil {
+		return
+	}
+
+	err := ac.authService.SetPassword(c, request)
+	if err != nil {
+		helper.HandleResponse(c, helper.Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
+	helper.HandleResponse(c, helper.Response{
+		Status: http.StatusOK,
+	})
+}
+
+func (ac *authController) SetPasswordPage(c *gin.Context) {
+	request := api_entity.AuthSetPasswordPageRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
 		return
 	}
 
 	setPasswordURL := fmt.Sprintf("%s:%d/api/v1/auth/set-password", ac.config.BaseURL, ac.config.Port)
 
-	c.HTML(http.StatusOK, "reset-password-form.template.html", gin.H{
+	c.HTML(http.StatusOK, "set-password-form.template.html", gin.H{
 		"Action": setPasswordURL,
+		"Token":  request.PasswordToken,
 	})
 }
