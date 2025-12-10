@@ -16,6 +16,8 @@ var (
 	ErrInvalidPassword      = errors.New("invalid password")
 	ErrUnchangedPassword    = errors.New("password is unchanged")
 
+	ErrUserAlreadyInGroup = errors.New("user already a member of this group")
+
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
 )

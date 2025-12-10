@@ -42,6 +42,7 @@ func InitRouter(
 	groupV1 := v1.Group("/groups")
 	groupV1.Use(middleware.Authorization(config))
 	groupV1.POST("/", groupsController.CreateGroup)
+	groupV1.POST("/:groupSerial/add-user/:userSerial", groupsController.AddUserToGroup)
 
 	userV1 := v1.Group("/users")
 	userV1.Use(middleware.Authorization(config))

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"jima/config"
 	api_entity "jima/entity/api"
 	"jima/entity/model"
@@ -8,10 +9,12 @@ import (
 	"jima/repository"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type GroupsService interface {
 	CreateGroup(c *gin.Context, request api_entity.GroupsCreateGroupRequest) (response *api_entity.GroupsCreateGroupResponse, err error)
+	AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *model.UserGroup, err error)
 }
 
 type groupsService struct {
@@ -52,4 +55,32 @@ func (s *groupsService) CreateGroup(c *gin.Context, request api_entity.GroupsCre
 		Serial: group.Serial,
 		Name:   group.Name,
 	}, nil
+}
+
+func (s *groupsService) AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *model.UserGroup, err error) {
+	// Check existing user group
+	existingUserGroup, err := s.userGroupRepository.GetUserGroup(request.UserSerial, request.GroupSerial)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	if existingUserGroup != nil {
+		return nil, helper.ErrUserAlreadyInGroup
+	}
+
+	// Check auth user status in group
+	userGroup, err := s.userGroupRepository.GetUserGroup(request.UserAuthSerial, request.GroupSerial)
+	if err != nil {
+		return nil, err
+	}
+
+	if !helper.IsUserGroupManagerOrSelf(userGroup, request.UserSerial) {
+		return nil, helper.ErrForbiddenUserAction
+	}
+
+	createdUserGroup, err := s.userGroupRepository.AddUserToGroup(request.UserSerial, request.GroupSerial)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUserGroup, nil
 }

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	CharacterRunes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	CharacterRunes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	SerialLength   = 12
 )
 

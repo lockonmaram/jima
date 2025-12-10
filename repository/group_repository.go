@@ -10,6 +10,7 @@ import (
 
 type GroupRepository interface {
 	CreateGroup(group *model.Group, userSerial string) (response *model.Group, err error)
+	GetGroupBySerial(groupSerial string) (response *model.Group, err error)
 }
 
 type groupRepository struct {
@@ -27,7 +28,7 @@ func (r *groupRepository) CreateGroup(group *model.Group, userSerial string) (re
 			return err
 		}
 
-		// Generate yser group serial
+		// Generate user group serial
 		userGroupSerial := helper.GenerateSerialFromString(model.UserGroupSerialPrefix, strings.Split(group.Serial, "-")[1])
 
 		// Assign user to group
@@ -47,4 +48,12 @@ func (r *groupRepository) CreateGroup(group *model.Group, userSerial string) (re
 	})
 
 	return response, err
+}
+
+func (r *groupRepository) GetGroupBySerial(groupSerial string) (group *model.Group, err error) {
+	err = r.pgdb.Where("serial = ? AND deleted_at IS NULL", groupSerial).First(&group).Error
+	if err != nil {
+		return nil, err
+	}
+	return group, nil
 }
