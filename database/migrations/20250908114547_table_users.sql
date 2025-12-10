@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE auth.users (
+CREATE TABLE jima_auth.users (
   serial varchar PRIMARY KEY,
   username varchar,
   email varchar,
@@ -15,8 +15,8 @@ CREATE TABLE auth.users (
   deleted_by varchar
 );
 
-CREATE UNIQUE INDEX idx_users_username_unique ON auth.users (username);
-CREATE UNIQUE INDEX idx_users_email_unique ON auth.users (email);
+CREATE UNIQUE INDEX idx_users_username_unique ON jima_auth.users (username);
+CREATE UNIQUE INDEX idx_users_email_unique ON jima_auth.users (email);
 
 -- +goose Down
-DROP TABLE auth.users;
+DROP TABLE jima_auth.users;

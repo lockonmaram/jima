@@ -26,5 +26,5 @@ type UserGroup struct {
 }
 
 func (UserGroup) TableName() string {
-	return "auth.user_groups"
+	return "jima_auth.user_groups"
 }

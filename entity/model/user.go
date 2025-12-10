@@ -30,5 +30,5 @@ type User struct {
 }
 
 func (User) TableName() string {
-	return "auth.users"
+	return "jima_auth.users"
 }
