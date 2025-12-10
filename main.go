@@ -29,13 +29,13 @@ func main() {
 
 	// Services
 	authService := service.NewAuthService(config, smtpService, userRepository)
-	userService := service.NewUserService(config, smtpService, userRepository)
-	groupService := service.NewGroupService(config, userRepository, groupRepository, userGroupRepository)
+	userService := service.NewUsersService(config, smtpService, userRepository)
+	groupService := service.NewGroupsService(config, userRepository, groupRepository, userGroupRepository)
 
 	// Controller
 	authController := controller.NewAuthController(config, authService)
-	userController := controller.NewUserController(userService)
-	groupController := controller.NewGroupController(groupService)
+	userController := controller.NewUsersController(userService)
+	groupController := controller.NewGroupsController(groupService)
 
 	// Init Router
 	r := router.InitRouter(

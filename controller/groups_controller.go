@@ -9,22 +9,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GroupController interface {
+type GroupsController interface {
 	CreateGroup(c *gin.Context)
 }
 
-type groupController struct {
-	groupService service.GroupService
+type groupsController struct {
+	groupsService service.GroupsService
 }
 
-func NewGroupController(groupService service.GroupService) GroupController {
-	return &groupController{
-		groupService,
+func NewGroupsController(groupsService service.GroupsService) GroupsController {
+	return &groupsController{
+		groupsService,
 	}
 }
 
-func (gc *groupController) CreateGroup(c *gin.Context) {
-	request := api_entity.GroupCreateGroupRequest{}
+func (gc *groupsController) CreateGroup(c *gin.Context) {
+	request := api_entity.GroupsCreateGroupRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func (gc *groupController) CreateGroup(c *gin.Context) {
 	userAuth := helper.GetUserAuthClaims(c)
 	request.UserSerial = userAuth.Serial
 
-	response, err := gc.groupService.CreateGroup(c, request)
+	response, err := gc.groupsService.CreateGroup(c, request)
 	if err != nil {
 		helper.HandleResponse(c, helper.Response{
 			Status: http.StatusInternalServerError,

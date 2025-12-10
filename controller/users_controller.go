@@ -10,29 +10,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserController interface {
+type UsersController interface {
 	CreateUser(c *gin.Context)
 	UpdateUserProfile(c *gin.Context)
 	ChangePassword(c *gin.Context)
 }
 
-type userController struct {
-	userService service.UserService
+type usersController struct {
+	usersService service.UsersService
 }
 
-func NewUserController(userService service.UserService) UserController {
-	return &userController{
-		userService,
+func NewUsersController(usersService service.UsersService) UsersController {
+	return &usersController{
+		usersService,
 	}
 }
 
-func (uc *userController) CreateUser(c *gin.Context) {
-	request := api_entity.UserCreateUserRequest{}
+func (uc *usersController) CreateUser(c *gin.Context) {
+	request := api_entity.UsersCreateUserRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
 		return
 	}
 
-	response, err := uc.userService.CreateUser(c, request)
+	response, err := uc.usersService.CreateUser(c, request)
 	if err != nil {
 		if errors.Is(err, helper.ErrUserAlreadyExists) {
 			helper.HandleResponse(c, helper.Response{
@@ -55,13 +55,13 @@ func (uc *userController) CreateUser(c *gin.Context) {
 	})
 }
 
-func (uc *userController) UpdateUserProfile(c *gin.Context) {
-	request := api_entity.UserUpdateUserProfileRequest{}
+func (uc *usersController) UpdateUserProfile(c *gin.Context) {
+	request := api_entity.UsersUpdateUserProfileRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
 		return
 	}
 
-	response, err := uc.userService.UpdateUserProfile(c, request)
+	response, err := uc.usersService.UpdateUserProfile(c, request)
 	if err != nil {
 		helper.HandleResponse(c, helper.Response{
 			Status: http.StatusInternalServerError,
@@ -76,13 +76,13 @@ func (uc *userController) UpdateUserProfile(c *gin.Context) {
 	})
 }
 
-func (uc *userController) ChangePassword(c *gin.Context) {
-	request := api_entity.UserChangePasswordRequest{}
+func (uc *usersController) ChangePassword(c *gin.Context) {
+	request := api_entity.UsersChangePasswordRequest{}
 	if err := helper.HandleRequest(c, &request); err != nil {
 		return
 	}
 
-	err := uc.userService.ChangePassword(c, request)
+	err := uc.usersService.ChangePassword(c, request)
 	if err != nil {
 		if errors.Is(err, helper.ErrUserAlreadyExists) {
 			helper.HandleResponse(c, helper.Response{

@@ -10,24 +10,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GroupService interface {
-	CreateGroup(c *gin.Context, request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error)
+type GroupsService interface {
+	CreateGroup(c *gin.Context, request api_entity.GroupsCreateGroupRequest) (response *api_entity.GroupsCreateGroupResponse, err error)
 }
 
-type groupService struct {
+type groupsService struct {
 	config              config.Config
 	userRepository      repository.UserRepository
 	groupRepository     repository.GroupRepository
 	userGroupRepository repository.UserGroupRepository
 }
 
-func NewGroupService(
+func NewGroupsService(
 	config config.Config,
 	userRepo repository.UserRepository,
 	groupRepo repository.GroupRepository,
 	userGroupRepo repository.UserGroupRepository,
-) GroupService {
-	return &groupService{
+) GroupsService {
+	return &groupsService{
 		config:              config,
 		userRepository:      userRepo,
 		groupRepository:     groupRepo,
@@ -35,7 +35,7 @@ func NewGroupService(
 	}
 }
 
-func (s *groupService) CreateGroup(c *gin.Context, request api_entity.GroupCreateGroupRequest) (response *api_entity.GroupCreateGroupResponse, err error) {
+func (s *groupsService) CreateGroup(c *gin.Context, request api_entity.GroupsCreateGroupRequest) (response *api_entity.GroupsCreateGroupResponse, err error) {
 	// Create group
 	group := &model.Group{
 		Serial:    helper.GenerateSerialFromString(model.GroupSerialPrefix, request.Name),
@@ -48,7 +48,7 @@ func (s *groupService) CreateGroup(c *gin.Context, request api_entity.GroupCreat
 		return nil, err
 	}
 
-	return &api_entity.GroupCreateGroupResponse{
+	return &api_entity.GroupsCreateGroupResponse{
 		Serial: group.Serial,
 		Name:   group.Name,
 	}, nil

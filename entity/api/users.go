@@ -1,13 +1,13 @@
 package api_entity
 
-type UserCreateUserRequest struct {
+type UsersCreateUserRequest struct {
 	Username string `json:"username" validation:"required"`
 	Password string `json:"password" validation:"required"`
 	Email    string `json:"email" validation:"required,email"`
 	Name     string `json:"name" validation:"required"`
 	Role     string `json:"role" validation:"required"`
 }
-type UserCreateUserResponse struct {
+type UsersCreateUserResponse struct {
 	Serial   string `json:"serial"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
@@ -15,15 +15,15 @@ type UserCreateUserResponse struct {
 	Role     string `json:"role"`
 }
 
-type UserUpdateUserProfileRequest struct {
+type UsersUpdateUserProfileRequest struct {
 	Serial string `uri:"serial" validation:"required"`
 	Name   string `json:"name"`
 }
-type UserUpdateUserProfileResponse struct {
+type UsersUpdateUserProfileResponse struct {
 	Name string `json:"name,omitempty"`
 }
 
-type UserChangePasswordRequest struct {
+type UsersChangePasswordRequest struct {
 	Serial   string `uri:"serial" validation:"required"`
 	Password string `json:"password"`
 }

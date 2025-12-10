@@ -13,8 +13,8 @@ import (
 func InitRouter(
 	config config.Config,
 	authController controller.AuthController,
-	userController controller.UserController,
-	groupController controller.GroupController,
+	usersController controller.UsersController,
+	groupsController controller.GroupsController,
 ) *gin.Engine {
 	router := gin.Default()
 
@@ -39,15 +39,15 @@ func InitRouter(
 	authV1.POST("/set-password", authController.SetPassword)
 	authV1.GET("/set-password", authController.SetPasswordPage)
 
-	groupV1 := v1.Group("/group")
+	groupV1 := v1.Group("/groups")
 	groupV1.Use(middleware.Authorization(config))
-	groupV1.POST("/", groupController.CreateGroup)
+	groupV1.POST("/", groupsController.CreateGroup)
 
-	userV1 := v1.Group("/user")
+	userV1 := v1.Group("/users")
 	userV1.Use(middleware.Authorization(config))
-	userV1.POST("/", middleware.ValidateUserRole(model.UserRoleAdmin), userController.CreateUser)
-	userV1.PUT("/:serial/profile", userController.UpdateUserProfile)
-	userV1.PUT("/:serial/change-password", userController.ChangePassword)
+	userV1.POST("/", middleware.ValidateUserRole(model.UserRoleAdmin), usersController.CreateUser)
+	userV1.PUT("/:serial/profile", usersController.UpdateUserProfile)
+	userV1.PUT("/:serial/change-password", usersController.ChangePassword)
 
 	return router
 }

@@ -12,31 +12,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService interface {
-	CreateUser(c *gin.Context, request api_entity.UserCreateUserRequest) (response *api_entity.UserCreateUserResponse, err error)
-	UpdateUserProfile(c *gin.Context, request api_entity.UserUpdateUserProfileRequest) (response *api_entity.UserUpdateUserProfileResponse, err error)
-	ChangePassword(c *gin.Context, request api_entity.UserChangePasswordRequest) (err error)
+type UsersService interface {
+	CreateUser(c *gin.Context, request api_entity.UsersCreateUserRequest) (response *api_entity.UsersCreateUserResponse, err error)
+	UpdateUserProfile(c *gin.Context, request api_entity.UsersUpdateUserProfileRequest) (response *api_entity.UsersUpdateUserProfileResponse, err error)
+	ChangePassword(c *gin.Context, request api_entity.UsersChangePasswordRequest) (err error)
 }
 
-type userService struct {
+type usersService struct {
 	config         config.Config
 	smtpService    SMTPService
 	userRepository repository.UserRepository
 }
 
-func NewUserService(
+func NewUsersService(
 	config config.Config,
 	smtpService SMTPService,
 	userRepo repository.UserRepository,
-) UserService {
-	return &userService{
+) UsersService {
+	return &usersService{
 		config:         config,
 		smtpService:    smtpService,
 		userRepository: userRepo,
 	}
 }
 
-func (s *userService) CreateUser(c *gin.Context, request api_entity.UserCreateUserRequest) (response *api_entity.UserCreateUserResponse, err error) {
+func (s *usersService) CreateUser(c *gin.Context, request api_entity.UsersCreateUserRequest) (response *api_entity.UsersCreateUserResponse, err error) {
 	// Check if user already exists
 	existingUser, err := s.userRepository.GetUserByUsernameOrEmail(request.Username, request.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -74,7 +74,7 @@ func (s *userService) CreateUser(c *gin.Context, request api_entity.UserCreateUs
 		helper.GenerateSMTPTemplate(helper.SMTP_TemplateRegisterSuccess, user.Name),
 	)
 
-	return &api_entity.UserCreateUserResponse{
+	return &api_entity.UsersCreateUserResponse{
 		Serial:   user.Serial,
 		Username: user.Username,
 		Email:    user.Email,
@@ -83,7 +83,7 @@ func (s *userService) CreateUser(c *gin.Context, request api_entity.UserCreateUs
 	}, nil
 }
 
-func (s *userService) UpdateUserProfile(c *gin.Context, request api_entity.UserUpdateUserProfileRequest) (response *api_entity.UserUpdateUserProfileResponse, err error) {
+func (s *usersService) UpdateUserProfile(c *gin.Context, request api_entity.UsersUpdateUserProfileRequest) (response *api_entity.UsersUpdateUserProfileResponse, err error) {
 	// Check update eligibility from auth
 	if !helper.IsUserAdminOrSelf(c, request.Serial) {
 		return nil, helper.ErrForbiddenUserAction
@@ -111,12 +111,12 @@ func (s *userService) UpdateUserProfile(c *gin.Context, request api_entity.UserU
 		return nil, helper.ErrDatabase
 	}
 
-	return &api_entity.UserUpdateUserProfileResponse{
+	return &api_entity.UsersUpdateUserProfileResponse{
 		Name: user.Name,
 	}, nil
 }
 
-func (s *userService) ChangePassword(c *gin.Context, request api_entity.UserChangePasswordRequest) (err error) {
+func (s *usersService) ChangePassword(c *gin.Context, request api_entity.UsersChangePasswordRequest) (err error) {
 	// Check update eligibility from auth
 	if !helper.IsUserAdminOrSelf(c, request.Serial) {
 		return helper.ErrForbiddenUserAction

@@ -1,10 +1,10 @@
 package api_entity
 
-type GroupCreateGroupRequest struct {
+type GroupsCreateGroupRequest struct {
 	Name       string `json:"name" validation:"required"`
 	UserSerial string `json:"userSerial"`
 }
-type GroupCreateGroupResponse struct {
+type GroupsCreateGroupResponse struct {
 	Serial string `json:"serial"`
 	Name   string `json:"name"`
 }
