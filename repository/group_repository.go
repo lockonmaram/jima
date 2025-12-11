@@ -50,10 +50,10 @@ func (r *groupRepository) CreateGroup(group *model.Group, userSerial string) (re
 	return response, err
 }
 
-func (r *groupRepository) GetGroupBySerial(groupSerial string) (group *model.Group, err error) {
-	err = r.pgdb.Where("serial = ? AND deleted_at IS NULL", groupSerial).First(&group).Error
+func (r *groupRepository) GetGroupBySerial(groupSerial string) (response *model.Group, err error) {
+	err = r.pgdb.Where("serial = ? AND deleted_at IS NULL", groupSerial).First(&response).Error
 	if err != nil {
 		return nil, err
 	}
-	return group, nil
+	return response, nil
 }

@@ -9,9 +9,11 @@ import (
 )
 
 type UserGroupRepository interface {
-	GetUserGroup(userSerial, groupSerial string) (userGroup *model.UserGroup, err error)
+	GetUserGroup(userSerial, groupSerial string) (response *model.UserGroup, err error)
 	AddUserToGroup(userSerial, groupSerial string) (response *model.UserGroup, err error)
 	RemoveUserFromGroup(userGroupSerial string) (err error)
+	GetUserGroups(userSerial string) (response []*model.UserGroup, err error)
+	GetUserGroupMembersByGroupSerial(groupSerial string) (response []*model.UserGroup, err error)
 }
 
 type userGroupRepository struct {
@@ -22,12 +24,12 @@ func NewUserGroupRepository(pgdb *gorm.DB) UserGroupRepository {
 	return &userGroupRepository{pgdb}
 }
 
-func (r *userGroupRepository) GetUserGroup(userSerial, groupSerial string) (userGroup *model.UserGroup, err error) {
-	err = r.pgdb.Where("user_serial = ? AND group_serial = ? AND deleted_at IS NULL", userSerial, groupSerial).First(&userGroup).Error
+func (r *userGroupRepository) GetUserGroup(userSerial, groupSerial string) (response *model.UserGroup, err error) {
+	err = r.pgdb.Where("user_serial = ? AND group_serial = ? AND deleted_at IS NULL", userSerial, groupSerial).First(&response).Error
 	if err != nil {
 		return nil, err
 	}
-	return userGroup, nil
+	return response, nil
 }
 
 func (r *userGroupRepository) AddUserToGroup(userSerial, groupSerial string) (response *model.UserGroup, err error) {
@@ -50,4 +52,20 @@ func (r *userGroupRepository) AddUserToGroup(userSerial, groupSerial string) (re
 
 func (r *userGroupRepository) RemoveUserFromGroup(userGroupSerial string) (err error) {
 	return r.pgdb.Where("serial = ?", userGroupSerial).Delete(&model.UserGroup{}).Error
+}
+
+func (r *userGroupRepository) GetUserGroups(userSerial string) (response []*model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("Group").
+		Where("user_serial = ?", userSerial).
+		Find(&response).Error
+	return
+}
+
+func (r *userGroupRepository) GetUserGroupMembersByGroupSerial(groupSerial string) (response []*model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("User").
+		Where("group_serial = ?", groupSerial).
+		Find(&response).Error
+	return
 }

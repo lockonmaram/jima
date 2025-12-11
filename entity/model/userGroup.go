@@ -23,6 +23,9 @@ type UserGroup struct {
 	UpdatedBy *string    `db:"updated_by" json:"updated_by"`
 	DeletedAt *time.Time `db:"deleted_at" json:"deleted_at"`
 	DeletedBy *string    `db:"deleted_by" json:"deleted_by"`
+
+	User  *User  `gorm:"foreignKey:UserSerial;references:Serial"`
+	Group *Group `gorm:"foreignKey:GroupSerial;references:Serial"`
 }
 
 func (UserGroup) TableName() string {

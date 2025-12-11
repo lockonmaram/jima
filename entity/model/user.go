@@ -14,7 +14,7 @@ const (
 )
 
 type User struct {
-	Serial   string `db:"serial" json:"serial"`
+	Serial   string `db:"serial" json:"serial" gorm:"primaryKey"`
 	Username string `db:"username" json:"username"`
 	Email    string `db:"email" json:"email"`
 	Name     string `db:"name" json:"name"`

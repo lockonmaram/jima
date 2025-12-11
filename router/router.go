@@ -44,12 +44,15 @@ func InitRouter(
 	groupV1.POST("/", groupsController.CreateGroup)
 	groupV1.PUT("/:groupSerial/add-user/:userSerial", groupsController.AddUserToGroup)
 	groupV1.DELETE("/:groupSerial/remove-user/:userSerial", groupsController.RemoveUserFromGroup)
+	groupV1.GET("/:groupSerial", groupsController.GetGroupDetail)
+	groupV1.GET("/:groupSerial/members", groupsController.GetGroupMembers)
 
 	userV1 := v1.Group("/users")
 	userV1.Use(middleware.Authorization(config))
 	userV1.POST("/", middleware.ValidateUserRole(model.UserRoleAdmin), usersController.CreateUser)
 	userV1.PUT("/:serial/profile", usersController.UpdateUserProfile)
 	userV1.PUT("/:serial/change-password", usersController.ChangePassword)
+	userV1.GET("/:userSerial/groups", groupsController.GetUserGroups)
 
 	return router
 }

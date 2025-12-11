@@ -16,6 +16,9 @@ type GroupsService interface {
 	CreateGroup(c *gin.Context, request api_entity.GroupsCreateGroupRequest) (response *api_entity.GroupsCreateGroupResponse, err error)
 	AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *api_entity.GroupsAddUserToGroupResponse, err error)
 	RemoveUserFromGroup(c *gin.Context, request api_entity.GroupsRemoveUserFromGroupRequest) (response *api_entity.GroupsRemoveUserFromGroupResponse, err error)
+	GetGroupBySerial(c *gin.Context, request api_entity.GroupsGetGroupBySerialRequest) (response *api_entity.GroupsGetGroupBySerialResponse, err error)
+	GetGroupsByUserSerial(c *gin.Context, request api_entity.GroupsGetGroupsByUserSerialRequest) (response *api_entity.GroupsGetGroupsByUserSerialResponse, err error)
+	GetGroupMembers(c *gin.Context, request api_entity.GroupsGetGroupMembersRequest) (response *api_entity.GroupsGetGroupMembersResponse, err error)
 }
 
 type groupsService struct {
@@ -123,4 +126,74 @@ func (s *groupsService) RemoveUserFromGroup(c *gin.Context, request api_entity.G
 		Success: true,
 		Message: helper.MsgUserHasBeenRemovedFromGroup,
 	}, nil
+}
+
+func (s *groupsService) GetGroupBySerial(c *gin.Context, request api_entity.GroupsGetGroupBySerialRequest) (response *api_entity.GroupsGetGroupBySerialResponse, err error) {
+	// Check user a member of the group
+	userGroup, err := s.userGroupRepository.GetUserGroup(request.UserAuthSerial, request.GroupSerial)
+	if err != nil || userGroup == nil {
+		return response, helper.ErrForbiddenUserAction
+	}
+
+	group, err := s.groupRepository.GetGroupBySerial(request.GroupSerial)
+	if err != nil {
+		return response, err
+	}
+
+	return &api_entity.GroupsGetGroupBySerialResponse{
+		Group: api_entity.Group{
+			GroupSerial: group.Serial,
+			Name:        group.Name,
+			CreatedAt:   group.CreatedAt.String(),
+			UpdatedAt:   group.UpdatedAt.String(),
+		},
+	}, nil
+}
+
+func (s *groupsService) GetGroupsByUserSerial(c *gin.Context, request api_entity.GroupsGetGroupsByUserSerialRequest) (response *api_entity.GroupsGetGroupsByUserSerialResponse, err error) {
+	userGroups, err := s.userGroupRepository.GetUserGroups(request.UserSerial)
+	if err != nil {
+		return response, err
+	}
+
+	response = &api_entity.GroupsGetGroupsByUserSerialResponse{}
+	response.Groups = make([]api_entity.Group, len(userGroups))
+
+	for i, userGroup := range userGroups {
+		response.Groups[i] = api_entity.Group{
+			GroupSerial: userGroup.Group.Serial,
+			Name:        userGroup.Group.Name,
+			CreatedAt:   userGroup.Group.CreatedAt.String(),
+			UpdatedAt:   userGroup.Group.UpdatedAt.String(),
+		}
+	}
+
+	return response, nil
+}
+
+func (s *groupsService) GetGroupMembers(c *gin.Context, request api_entity.GroupsGetGroupMembersRequest) (response *api_entity.GroupsGetGroupMembersResponse, err error) {
+	// Check user a member of the group
+	userGroup, err := s.userGroupRepository.GetUserGroup(request.UserAuthSerial, request.GroupSerial)
+	if err != nil || userGroup == nil {
+		return response, helper.ErrForbiddenUserAction
+	}
+
+	userGroups, err := s.userGroupRepository.GetUserGroupMembersByGroupSerial(request.GroupSerial)
+	if err != nil {
+		return response, err
+	}
+
+	response = &api_entity.GroupsGetGroupMembersResponse{}
+	response.GroupMembers = make([]api_entity.GroupMember, len(userGroups))
+
+	for i, userGroup := range userGroups {
+		response.GroupMembers[i] = api_entity.GroupMember{
+			UserGroupSerial: userGroup.Serial,
+			UserSerial:      userGroup.UserSerial,
+			UserName:        userGroup.User.Name,
+			MemberSince:     userGroup.CreatedAt.String(),
+		}
+	}
+
+	return response, nil
 }
