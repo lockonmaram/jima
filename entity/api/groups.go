@@ -66,3 +66,12 @@ type GroupsGetGroupMembersRequest struct {
 type GroupsGetGroupMembersResponse struct {
 	GroupMembers []GroupMember `json:"groupMembers"`
 }
+
+type GroupsUpdateGroupRequest struct {
+	GroupSerial    string `uri:"groupSerial" validation:"required"`
+	Name           string `json:"name"`
+	UserAuthSerial string
+}
+type GroupsUpdateGroupResponse struct {
+	Group
+}

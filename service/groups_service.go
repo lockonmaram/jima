@@ -19,6 +19,7 @@ type GroupsService interface {
 	GetGroupBySerial(c *gin.Context, request api_entity.GroupsGetGroupBySerialRequest) (response *api_entity.GroupsGetGroupBySerialResponse, err error)
 	GetGroupsByUserSerial(c *gin.Context, request api_entity.GroupsGetGroupsByUserSerialRequest) (response *api_entity.GroupsGetGroupsByUserSerialResponse, err error)
 	GetGroupMembers(c *gin.Context, request api_entity.GroupsGetGroupMembersRequest) (response *api_entity.GroupsGetGroupMembersResponse, err error)
+	UpdateGroup(c *gin.Context, request api_entity.GroupsUpdateGroupRequest) (response *api_entity.GroupsUpdateGroupResponse, err error)
 }
 
 type groupsService struct {
@@ -196,4 +197,26 @@ func (s *groupsService) GetGroupMembers(c *gin.Context, request api_entity.Group
 	}
 
 	return response, nil
+}
+
+func (s *groupsService) UpdateGroup(c *gin.Context, request api_entity.GroupsUpdateGroupRequest) (response *api_entity.GroupsUpdateGroupResponse, err error) {
+	// Check user a member of the group
+	userGroup, err := s.userGroupRepository.GetUserGroup(request.UserAuthSerial, request.GroupSerial)
+	if err != nil || userGroup == nil || userGroup.Role != model.UserGroupRoleManager {
+		return response, helper.ErrForbiddenUserAction
+	}
+
+	updatedGroup, err := s.groupRepository.UpdateGroup(request)
+	if err != nil {
+		return response, err
+	}
+
+	return &api_entity.GroupsUpdateGroupResponse{
+		Group: api_entity.Group{
+			GroupSerial: updatedGroup.Serial,
+			Name:        updatedGroup.Name,
+			CreatedAt:   updatedGroup.CreatedAt.String(),
+			UpdatedAt:   updatedGroup.UpdatedAt.String(),
+		},
+	}, nil
 }

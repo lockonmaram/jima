@@ -1,16 +1,19 @@
 package repository
 
 import (
+	api_entity "jima/entity/api"
 	"jima/entity/model"
 	"jima/helper"
 	"strings"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type GroupRepository interface {
 	CreateGroup(group *model.Group, userSerial string) (response *model.Group, err error)
 	GetGroupBySerial(groupSerial string) (response *model.Group, err error)
+	UpdateGroup(request api_entity.GroupsUpdateGroupRequest) (response *model.Group, err error)
 }
 
 type groupRepository struct {
@@ -56,4 +59,27 @@ func (r *groupRepository) GetGroupBySerial(groupSerial string) (response *model.
 		return nil, err
 	}
 	return response, nil
+}
+
+func (r *groupRepository) UpdateGroup(request api_entity.GroupsUpdateGroupRequest) (response *model.Group, err error) {
+	updatePayload := map[string]any{}
+
+	if request.Name != "" {
+		updatePayload["name"] = request.Name
+	}
+
+	if len(updatePayload) == 0 {
+		return nil, helper.ErrInvalidRequest
+	}
+
+	err = r.pgdb.Model(&model.Group{}).
+		Where("serial = ?", request.GroupSerial).
+		Clauses(clause.Returning{}).
+		Updates(updatePayload).
+		Scan(&response).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return
 }

@@ -46,6 +46,7 @@ func InitRouter(
 	groupV1.DELETE("/:groupSerial/remove-user/:userSerial", groupsController.RemoveUserFromGroup)
 	groupV1.GET("/:groupSerial", groupsController.GetGroupDetail)
 	groupV1.GET("/:groupSerial/members", groupsController.GetGroupMembers)
+	groupV1.PUT("/:groupSerial", groupsController.UpdateGroup)
 
 	userV1 := v1.Group("/users")
 	userV1.Use(middleware.Authorization(config))
