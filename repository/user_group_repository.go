@@ -1,8 +1,21 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"jima/entity/model"
+	"jima/helper"
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 type UserGroupRepository interface {
+	GetUserGroup(userSerial, groupSerial string) (response *model.UserGroup, err error)
+	AddUserToGroup(userSerial, groupSerial string) (response *model.UserGroup, err error)
+	RemoveUserFromGroup(userGroupSerial string) (err error)
+	GetUserGroups(userSerial string) (response []*model.UserGroup, err error)
+	GetUserGroupMembersByGroupSerial(groupSerial string) (response []*model.UserGroup, err error)
+	GetManagersInGroup(groupSerial string) (response []*model.UserGroup, err error)
+	UpdateUserGroupRole(groupSerial, userSerial, role string) (err error)
 }
 
 type userGroupRepository struct {
@@ -11,4 +24,82 @@ type userGroupRepository struct {
 
 func NewUserGroupRepository(pgdb *gorm.DB) UserGroupRepository {
 	return &userGroupRepository{pgdb}
+}
+
+func (r *userGroupRepository) GetUserGroup(userSerial, groupSerial string) (response *model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("User").
+		Where("user_serial = ? AND group_serial = ? AND deleted_at IS NULL", userSerial, groupSerial).
+		First(&response).Error
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (r *userGroupRepository) AddUserToGroup(userSerial, groupSerial string) (response *model.UserGroup, err error) {
+	// Generate user group serial
+	userGroupSerial := helper.GenerateSerialFromString(model.UserGroupSerialPrefix, strings.Split(groupSerial, "-")[1])
+
+	userGroup := model.UserGroup{
+		Serial:      userGroupSerial,
+		UserSerial:  userSerial,
+		GroupSerial: groupSerial,
+		Role:        model.UserGroupRoleMember,
+		CreatedBy:   userSerial,
+	}
+	if err := r.pgdb.Create(&userGroup).Error; err != nil {
+		return nil, err
+	}
+
+	return &userGroup, nil
+}
+
+func (r *userGroupRepository) RemoveUserFromGroup(userGroupSerial string) (err error) {
+	return r.pgdb.Where("serial = ?", userGroupSerial).Delete(&model.UserGroup{}).Error
+}
+
+func (r *userGroupRepository) GetUserGroups(userSerial string) (response []*model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("Group").
+		Where("user_serial = ?", userSerial).
+		Find(&response).Error
+	return
+}
+
+func (r *userGroupRepository) GetUserGroupMembersByGroupSerial(groupSerial string) (response []*model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("User").
+		Where("group_serial = ?", groupSerial).
+		Find(&response).Error
+	return
+}
+
+func (r *userGroupRepository) GetManagersInGroup(groupSerial string) (response []*model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("User").
+		Where("group_serial = ? AND role = ?", groupSerial, model.UserGroupRoleManager).
+		Find(&response).Error
+	return
+}
+
+func (r *userGroupRepository) UpdateUserGroupRole(groupSerial, userSerial, role string) (err error) {
+	updatePayload := map[string]any{}
+
+	if role != "" {
+		updatePayload["role"] = role
+	}
+
+	if len(updatePayload) == 0 {
+		return helper.ErrInvalidRequest
+	}
+
+	err = r.pgdb.Model(&model.UserGroup{}).
+		Where("group_serial = ? AND user_serial = ?", groupSerial, userSerial).
+		Updates(updatePayload).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

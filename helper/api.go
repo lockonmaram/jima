@@ -70,7 +70,7 @@ func HandleRequest(c *gin.Context, request any) (err error) {
 		return err
 	}
 
-	if err := c.BindJSON(request); err != nil && !errors.Is(err, io.EOF) {
+	if err := c.ShouldBindJSON(request); err != nil && !errors.Is(err, io.EOF) {
 		HandleResponse(c, Response{
 			Status: http.StatusInternalServerError,
 			Error:  err.Error(),
@@ -105,4 +105,8 @@ func IsUserAdminOrSelf(c *gin.Context, serial string) bool {
 		return false
 	}
 	return true
+}
+
+func IsUserGroupManagerOrSelf(userGroup *model.UserGroup, userSerial string) bool {
+	return userGroup.Role == model.UserGroupRoleManager || userGroup.UserSerial == userSerial
 }
