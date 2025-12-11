@@ -15,6 +15,7 @@ import (
 type GroupsService interface {
 	CreateGroup(c *gin.Context, request api_entity.GroupsCreateGroupRequest) (response *api_entity.GroupsCreateGroupResponse, err error)
 	AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *api_entity.GroupsAddUserToGroupResponse, err error)
+	RemoveUserFromGroup(c *gin.Context, request api_entity.GroupsRemoveUserFromGroupRequest) (response *api_entity.GroupsRemoveUserFromGroupResponse, err error)
 }
 
 type groupsService struct {
@@ -91,5 +92,35 @@ func (s *groupsService) AddUserToGroup(c *gin.Context, request api_entity.Groups
 		GroupSerial:     createdUserGroup.GroupSerial,
 		UserSerial:      createdUserGroup.UserSerial,
 		GroupName:       group.Name,
+	}, nil
+}
+
+func (s *groupsService) RemoveUserFromGroup(c *gin.Context, request api_entity.GroupsRemoveUserFromGroupRequest) (response *api_entity.GroupsRemoveUserFromGroupResponse, err error) {
+	// Check existing user group
+	existingUserGroup, err := s.userGroupRepository.GetUserGroup(request.UserSerial, request.GroupSerial)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return response, err
+	}
+	if existingUserGroup == nil {
+		return response, helper.ErrUserNotInGroup
+	}
+
+	// Check auth user status in group
+	userGroup, err := s.userGroupRepository.GetUserGroup(request.UserAuthSerial, request.GroupSerial)
+	if err != nil {
+		return response, err
+	}
+	if !helper.IsUserGroupManagerOrSelf(userGroup, request.UserSerial) {
+		return response, helper.ErrForbiddenUserAction
+	}
+
+	err = s.userGroupRepository.RemoveUserFromGroup(existingUserGroup.Serial)
+	if err != nil {
+		return response, err
+	}
+
+	return &api_entity.GroupsRemoveUserFromGroupResponse{
+		Success: true,
+		Message: helper.MsgUserHasBeenRemovedFromGroup,
 	}, nil
 }

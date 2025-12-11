@@ -17,7 +17,12 @@ var (
 	ErrUnchangedPassword    = errors.New("password is unchanged")
 
 	ErrUserAlreadyInGroup = errors.New("user already a member of this group")
+	ErrUserNotInGroup     = errors.New("user is not a member of this group")
 
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
+)
+
+var (
+	MsgUserHasBeenRemovedFromGroup = "user has been removed from group"
 )

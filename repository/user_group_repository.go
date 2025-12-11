@@ -11,6 +11,7 @@ import (
 type UserGroupRepository interface {
 	GetUserGroup(userSerial, groupSerial string) (userGroup *model.UserGroup, err error)
 	AddUserToGroup(userSerial, groupSerial string) (response *model.UserGroup, err error)
+	RemoveUserFromGroup(userGroupSerial string) (err error)
 }
 
 type userGroupRepository struct {
@@ -45,4 +46,8 @@ func (r *userGroupRepository) AddUserToGroup(userSerial, groupSerial string) (re
 	}
 
 	return &userGroup, nil
+}
+
+func (r *userGroupRepository) RemoveUserFromGroup(userGroupSerial string) (err error) {
+	return r.pgdb.Where("serial = ?", userGroupSerial).Delete(&model.UserGroup{}).Error
 }

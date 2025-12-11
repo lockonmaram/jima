@@ -20,3 +20,13 @@ type GroupsAddUserToGroupResponse struct {
 	UserSerial      string `json:"userSerial"`
 	GroupName       string `json:"groupName"`
 }
+
+type GroupsRemoveUserFromGroupRequest struct {
+	GroupSerial    string `uri:"groupSerial" validation:"required"`
+	UserSerial     string `uri:"userSerial" validation:"required"`
+	UserAuthSerial string
+}
+type GroupsRemoveUserFromGroupResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
