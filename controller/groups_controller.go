@@ -18,6 +18,7 @@ type GroupsController interface {
 	GetUserGroups(c *gin.Context)
 	GetGroupMembers(c *gin.Context)
 	UpdateGroup(c *gin.Context)
+	UpdateGroupMemberRole(c *gin.Context)
 }
 
 type groupsController struct {
@@ -223,5 +224,36 @@ func (gc *groupsController) UpdateGroup(c *gin.Context) {
 	helper.HandleResponse(c, helper.Response{
 		Status: http.StatusOK,
 		Data:   response.Group,
+	})
+}
+
+func (gc *groupsController) UpdateGroupMemberRole(c *gin.Context) {
+	request := api_entity.GroupsUpdateGroupMemberRoleRequest{}
+	if err := helper.HandleRequest(c, &request); err != nil {
+		return
+	}
+
+	userAuth := helper.GetUserAuthClaims(c)
+	request.UserAuthSerial = userAuth.Serial
+
+	response, err := gc.groupsService.UpdateGroupMemberRole(c, request)
+	if err != nil {
+		if errors.Is(err, helper.ErrInvalidRequest) {
+			helper.HandleResponse(c, helper.Response{
+				Status: http.StatusBadRequest,
+				Error:  err.Error(),
+			})
+			return
+		}
+		helper.HandleResponse(c, helper.Response{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
+	helper.HandleResponse(c, helper.Response{
+		Status: http.StatusOK,
+		Data:   response.GroupMember,
 	})
 }

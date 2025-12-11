@@ -20,6 +20,7 @@ type GroupsService interface {
 	GetGroupsByUserSerial(c *gin.Context, request api_entity.GroupsGetGroupsByUserSerialRequest) (response *api_entity.GroupsGetGroupsByUserSerialResponse, err error)
 	GetGroupMembers(c *gin.Context, request api_entity.GroupsGetGroupMembersRequest) (response *api_entity.GroupsGetGroupMembersResponse, err error)
 	UpdateGroup(c *gin.Context, request api_entity.GroupsUpdateGroupRequest) (response *api_entity.GroupsUpdateGroupResponse, err error)
+	UpdateGroupMemberRole(c *gin.Context, request api_entity.GroupsUpdateGroupMemberRoleRequest) (response *api_entity.GroupsUpdateGroupMemberRoleResponse, err error)
 }
 
 type groupsService struct {
@@ -192,6 +193,7 @@ func (s *groupsService) GetGroupMembers(c *gin.Context, request api_entity.Group
 			UserGroupSerial: userGroup.Serial,
 			UserSerial:      userGroup.UserSerial,
 			UserName:        userGroup.User.Name,
+			Role:            string(userGroup.Role),
 			MemberSince:     userGroup.CreatedAt.String(),
 		}
 	}
@@ -217,6 +219,53 @@ func (s *groupsService) UpdateGroup(c *gin.Context, request api_entity.GroupsUpd
 			Name:        updatedGroup.Name,
 			CreatedAt:   updatedGroup.CreatedAt.String(),
 			UpdatedAt:   updatedGroup.UpdatedAt.String(),
+		},
+	}, nil
+}
+
+func (s *groupsService) UpdateGroupMemberRole(c *gin.Context, request api_entity.GroupsUpdateGroupMemberRoleRequest) (response *api_entity.GroupsUpdateGroupMemberRoleResponse, err error) {
+	authUserGroup, err := s.userGroupRepository.GetUserGroup(request.UserAuthSerial, request.GroupSerial)
+	if err != nil || authUserGroup == nil || authUserGroup.Role != model.UserGroupRoleManager {
+		return response, helper.ErrForbiddenUserAction
+	}
+	if request.UserAuthSerial == request.UserSerial && request.Role != string(model.UserGroupRoleManager) {
+		// check if current user is the only manager in the group
+		managers, err := s.userGroupRepository.GetManagersInGroup(request.GroupSerial)
+		if err != nil {
+			return response, err
+		}
+		if len(managers) == 1 && managers[0].UserSerial == request.UserAuthSerial {
+			return response, helper.ErrForbiddenUserAction
+		}
+	}
+
+	// check is updated user a member of group
+	userGroup, err := s.userGroupRepository.GetUserGroup(request.UserSerial, request.GroupSerial)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return response, err
+	}
+	if userGroup == nil {
+		return nil, helper.ErrUserNotInGroup
+	}
+
+	err = s.userGroupRepository.UpdateUserGroupRole(request.GroupSerial, request.UserSerial, request.Role)
+	if err != nil {
+		return response, err
+	}
+
+	// check is updated user a member of group
+	updatedUserGroup, err := s.userGroupRepository.GetUserGroup(request.UserSerial, request.GroupSerial)
+	if err != nil {
+		return response, err
+	}
+
+	return &api_entity.GroupsUpdateGroupMemberRoleResponse{
+		GroupMember: api_entity.GroupMember{
+			UserGroupSerial: updatedUserGroup.Serial,
+			UserSerial:      updatedUserGroup.UserSerial,
+			UserName:        updatedUserGroup.User.Name,
+			Role:            string(updatedUserGroup.Role),
+			MemberSince:     updatedUserGroup.CreatedBy,
 		},
 	}, nil
 }

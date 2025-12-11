@@ -47,6 +47,7 @@ func InitRouter(
 	groupV1.GET("/:groupSerial", groupsController.GetGroupDetail)
 	groupV1.GET("/:groupSerial/members", groupsController.GetGroupMembers)
 	groupV1.PUT("/:groupSerial", groupsController.UpdateGroup)
+	groupV1.PUT("/:groupSerial/update-member-role/:userSerial", groupsController.UpdateGroupMemberRole)
 
 	userV1 := v1.Group("/users")
 	userV1.Use(middleware.Authorization(config))

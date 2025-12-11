@@ -14,6 +14,8 @@ type UserGroupRepository interface {
 	RemoveUserFromGroup(userGroupSerial string) (err error)
 	GetUserGroups(userSerial string) (response []*model.UserGroup, err error)
 	GetUserGroupMembersByGroupSerial(groupSerial string) (response []*model.UserGroup, err error)
+	GetManagersInGroup(groupSerial string) (response []*model.UserGroup, err error)
+	UpdateUserGroupRole(groupSerial, userSerial, role string) (err error)
 }
 
 type userGroupRepository struct {
@@ -25,7 +27,10 @@ func NewUserGroupRepository(pgdb *gorm.DB) UserGroupRepository {
 }
 
 func (r *userGroupRepository) GetUserGroup(userSerial, groupSerial string) (response *model.UserGroup, err error) {
-	err = r.pgdb.Where("user_serial = ? AND group_serial = ? AND deleted_at IS NULL", userSerial, groupSerial).First(&response).Error
+	err = r.pgdb.
+		Preload("User").
+		Where("user_serial = ? AND group_serial = ? AND deleted_at IS NULL", userSerial, groupSerial).
+		First(&response).Error
 	if err != nil {
 		return nil, err
 	}
@@ -68,4 +73,33 @@ func (r *userGroupRepository) GetUserGroupMembersByGroupSerial(groupSerial strin
 		Where("group_serial = ?", groupSerial).
 		Find(&response).Error
 	return
+}
+
+func (r *userGroupRepository) GetManagersInGroup(groupSerial string) (response []*model.UserGroup, err error) {
+	err = r.pgdb.
+		Preload("User").
+		Where("group_serial = ? AND role = ?", groupSerial, model.UserGroupRoleManager).
+		Find(&response).Error
+	return
+}
+
+func (r *userGroupRepository) UpdateUserGroupRole(groupSerial, userSerial, role string) (err error) {
+	updatePayload := map[string]any{}
+
+	if role != "" {
+		updatePayload["role"] = role
+	}
+
+	if len(updatePayload) == 0 {
+		return helper.ErrInvalidRequest
+	}
+
+	err = r.pgdb.Model(&model.UserGroup{}).
+		Where("group_serial = ? AND user_serial = ?", groupSerial, userSerial).
+		Updates(updatePayload).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

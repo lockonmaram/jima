@@ -10,6 +10,7 @@ type GroupMember struct {
 	UserGroupSerial string `json:"userGroupSerial"`
 	UserSerial      string `json:"userSerial"`
 	UserName        string `json:"userName"`
+	Role            string `json:"role"`
 	MemberSince     string `json:"memberSince"`
 }
 
@@ -74,4 +75,14 @@ type GroupsUpdateGroupRequest struct {
 }
 type GroupsUpdateGroupResponse struct {
 	Group
+}
+
+type GroupsUpdateGroupMemberRoleRequest struct {
+	GroupSerial    string `uri:"groupSerial" validation:"required"`
+	UserSerial     string `uri:"userSerial" validation:"required"`
+	Role           string `json:"role"`
+	UserAuthSerial string
+}
+type GroupsUpdateGroupMemberRoleResponse struct {
+	GroupMember
 }
