@@ -14,7 +14,7 @@ import (
 
 type GroupsService interface {
 	CreateGroup(c *gin.Context, request api_entity.GroupsCreateGroupRequest) (response *api_entity.GroupsCreateGroupResponse, err error)
-	AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *model.UserGroup, err error)
+	AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *api_entity.GroupsAddUserToGroupResponse, err error)
 }
 
 type groupsService struct {
@@ -57,7 +57,7 @@ func (s *groupsService) CreateGroup(c *gin.Context, request api_entity.GroupsCre
 	}, nil
 }
 
-func (s *groupsService) AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *model.UserGroup, err error) {
+func (s *groupsService) AddUserToGroup(c *gin.Context, request api_entity.GroupsAddUserToGroupRequest) (response *api_entity.GroupsAddUserToGroupResponse, err error) {
 	// Check existing user group
 	existingUserGroup, err := s.userGroupRepository.GetUserGroup(request.UserSerial, request.GroupSerial)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -72,9 +72,13 @@ func (s *groupsService) AddUserToGroup(c *gin.Context, request api_entity.Groups
 	if err != nil {
 		return nil, err
 	}
-
 	if !helper.IsUserGroupManagerOrSelf(userGroup, request.UserSerial) {
 		return nil, helper.ErrForbiddenUserAction
+	}
+
+	group, err := s.groupRepository.GetGroupBySerial(request.GroupSerial)
+	if err != nil {
+		return nil, err
 	}
 
 	createdUserGroup, err := s.userGroupRepository.AddUserToGroup(request.UserSerial, request.GroupSerial)
@@ -82,5 +86,10 @@ func (s *groupsService) AddUserToGroup(c *gin.Context, request api_entity.Groups
 		return nil, err
 	}
 
-	return createdUserGroup, nil
+	return &api_entity.GroupsAddUserToGroupResponse{
+		UserGroupSerial: createdUserGroup.Serial,
+		GroupSerial:     createdUserGroup.GroupSerial,
+		UserSerial:      createdUserGroup.UserSerial,
+		GroupName:       group.Name,
+	}, nil
 }

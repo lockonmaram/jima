@@ -58,7 +58,7 @@ func (gc *groupsController) AddUserToGroup(c *gin.Context) {
 	userAuth := helper.GetUserAuthClaims(c)
 	request.UserAuthSerial = userAuth.Serial
 
-	userGroup, err := gc.groupsService.AddUserToGroup(c, request)
+	response, err := gc.groupsService.AddUserToGroup(c, request)
 	if err != nil {
 		if errors.Is(err, helper.ErrUserAlreadyInGroup) {
 			helper.HandleResponse(c, helper.Response{
@@ -77,6 +77,6 @@ func (gc *groupsController) AddUserToGroup(c *gin.Context) {
 
 	helper.HandleResponse(c, helper.Response{
 		Status: http.StatusOK,
-		Data:   userGroup,
+		Data:   response,
 	})
 }

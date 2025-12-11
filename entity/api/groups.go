@@ -14,3 +14,9 @@ type GroupsAddUserToGroupRequest struct {
 	UserSerial     string `uri:"userSerial" validation:"required"`
 	UserAuthSerial string
 }
+type GroupsAddUserToGroupResponse struct {
+	UserGroupSerial string `json:"userGroupSerial"`
+	GroupSerial     string `json:"groupSerial"`
+	UserSerial      string `json:"userSerial"`
+	GroupName       string `json:"groupName"`
+}
