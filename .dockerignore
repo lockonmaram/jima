@@ -1,0 +1,18 @@
+# Version control
+.git
+.gitignore
+
+# Go build artifacts
+*.exe
+*.test
+*.out
+vendor/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+.vscode/
+
+# Build directories
+tmp/
